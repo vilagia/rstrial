@@ -5,10 +5,23 @@ use super::line_item_converter;
 pub fn convert(line: Line) -> String {
     let breakline = "\n".to_string();
     match line {
-        Line::Paragraph(items) => items.into_iter().map(|item| {line_item_converter::convert(item)}).collect::<Vec<String>>().concat(),
-        Line::Conversation(items) => items.into_iter().map(|item| {line_item_converter::convert(item)}).collect::<Vec<String>>().concat(),
-        Line::Quotation(items) => format!("> {}",
-            items.into_iter().map(|item| {line_item_converter::convert(item)}).collect::<Vec<String>>().concat()
+        Line::Paragraph(items) => items
+            .into_iter()
+            .map(|item| line_item_converter::convert(item))
+            .collect::<Vec<String>>()
+            .concat(),
+        Line::Conversation(items) => items
+            .into_iter()
+            .map(|item| line_item_converter::convert(item))
+            .collect::<Vec<String>>()
+            .concat(),
+        Line::Quotation(items) => format!(
+            "> {}",
+            items
+                .into_iter()
+                .map(|item| { line_item_converter::convert(item) })
+                .collect::<Vec<String>>()
+                .concat()
         ),
         Line::Comment(_) => breakline,
     }
@@ -24,7 +37,10 @@ mod tests {
             rstrial_parser::tokens::LineItem::Text("我が輩は".to_string()),
             rstrial_parser::tokens::LineItem::Comma("、".to_string()),
             rstrial_parser::tokens::LineItem::Comment("猫である。".to_string()),
-            rstrial_parser::tokens::LineItem::RichText("名前".to_string(), rstrial_parser::tokens::line_item::Attribute::Ruby("なまえ".to_string())),
+            rstrial_parser::tokens::LineItem::RichText(
+                "名前".to_string(),
+                rstrial_parser::tokens::line_item::Attribute::Ruby("なまえ".to_string()),
+            ),
             rstrial_parser::tokens::LineItem::Text("はまだ無い".to_string()),
             rstrial_parser::tokens::LineItem::EndOfSentence("。".to_string()),
             rstrial_parser::tokens::LineItem::EndOfParagraph,
@@ -39,7 +55,10 @@ mod tests {
             rstrial_parser::tokens::LineItem::Text("「我が輩は".to_string()),
             rstrial_parser::tokens::LineItem::Comma("、".to_string()),
             rstrial_parser::tokens::LineItem::Comment("猫である。".to_string()),
-            rstrial_parser::tokens::LineItem::RichText("名前".to_string(), rstrial_parser::tokens::line_item::Attribute::Ruby("なまえ".to_string())),
+            rstrial_parser::tokens::LineItem::RichText(
+                "名前".to_string(),
+                rstrial_parser::tokens::line_item::Attribute::Ruby("なまえ".to_string()),
+            ),
             rstrial_parser::tokens::LineItem::Text("はまだ無い".to_string()),
             rstrial_parser::tokens::LineItem::EndOfSentence("」".to_string()),
             rstrial_parser::tokens::LineItem::EndOfParagraph,

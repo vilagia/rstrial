@@ -6,9 +6,9 @@ pub fn convert(item: LineItem) -> String {
         LineItem::Text(text) => text,
         LineItem::Comma(comma) => comma,
         LineItem::Comment(_) => "".to_string(),
-        LineItem::RichText(text, attribute) => {
-            match attribute {
-                rstrial_parser::tokens::line_item::Attribute::Ruby(ruby) => format!("{{{text}|{ruby}}}"),
+        LineItem::RichText(text, attribute) => match attribute {
+            rstrial_parser::tokens::line_item::Attribute::Ruby(ruby) => {
+                format!("{{{text}|{ruby}}}")
             }
         },
         LineItem::EndOfSentence(footer) => footer,
@@ -45,7 +45,10 @@ mod tests {
 
     #[test]
     fn test_convert_rich_text() {
-        let item = LineItem::RichText("text".to_string(), rstrial_parser::tokens::line_item::Attribute::Ruby("ruby".to_string()));
+        let item = LineItem::RichText(
+            "text".to_string(),
+            rstrial_parser::tokens::line_item::Attribute::Ruby("ruby".to_string()),
+        );
         let result = convert(item);
         assert_eq!(result, "{text|ruby}");
     }
