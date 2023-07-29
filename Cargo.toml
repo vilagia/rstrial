@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "rstrial_parser",
+    "rstrial_converter",
+]
