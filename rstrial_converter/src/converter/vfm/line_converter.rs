@@ -7,12 +7,12 @@ pub fn convert(line: Line) -> String {
     match line {
         Line::Paragraph(items) => items
             .into_iter()
-            .map(|item| line_item_converter::convert(item))
+            .map(line_item_converter::convert)
             .collect::<Vec<String>>()
             .concat(),
         Line::Conversation(items) => items
             .into_iter()
-            .map(|item| line_item_converter::convert(item))
+            .map(line_item_converter::convert)
             .collect::<Vec<String>>()
             .concat(),
         Line::Quotation(items) => format!(
