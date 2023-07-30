@@ -50,27 +50,27 @@ impl Iterator for LineParser<'_> {
                     self.stacked_tokens = stacked_tokens.clone();
                     self.text_acc = texts.clone();
                     token = Some(t);
-                },
+                }
                 ParseResult::ChangeState(new_state, Some(t)) => {
                     self.stacked_tokens = stacked_tokens.clone();
                     self.state = new_state;
                     self.text_acc = texts.clone();
                     token = Some(t);
-                },
+                }
                 ParseResult::ChangeState(new_state, None) => {
                     self.state = new_state;
                     self.text_acc = texts.clone();
                     token = self.next();
-                },
+                }
                 ParseResult::Continue(Some(char)) => {
                     texts.push(char.to_string());
                     self.text_acc = texts.clone();
                     continue;
-                },
+                }
                 ParseResult::Continue(None) => {
                     self.text_acc = texts.clone();
                     continue;
-                },
+                }
             };
             break;
         }
@@ -79,7 +79,12 @@ impl Iterator for LineParser<'_> {
 }
 
 impl<'a> LineParser<'a> {
-    fn process_by_state(state: State, stacked_tokens: &mut Vec<LineItem>, char: char, acc: &mut Vec<String>) -> ParseResult {
+    fn process_by_state(
+        state: State,
+        stacked_tokens: &mut Vec<LineItem>,
+        char: char,
+        acc: &mut Vec<String>,
+    ) -> ParseResult {
         match state {
             State::Initial => match char {
                 ' ' | '　' => ParseResult::Continue(None),
@@ -88,13 +93,12 @@ impl<'a> LineParser<'a> {
                     _ => {
                         acc.push(char.to_string());
                         ParseResult::ChangeState(State::Normal, None)
-                    },
+                    }
                 },
             },
             State::Normal => match char {
                 '。' | '！' | '？' | '」' => {
-                    stacked_tokens
-                        .push(LineItem::EndOfSentence(char.to_string()));
+                    stacked_tokens.push(LineItem::EndOfSentence(char.to_string()));
                     let res = ParseResult::Token(LineItem::Text(acc.concat()));
                     acc.clear();
                     res
@@ -118,7 +122,7 @@ impl<'a> LineParser<'a> {
                 _ => {
                     acc.push(char.to_string());
                     ParseResult::Continue(None)
-                },
+                }
             },
             State::Brace => match char {
                 '}' => {
@@ -129,7 +133,7 @@ impl<'a> LineParser<'a> {
                 _ => {
                     acc.push(char.to_string());
                     ParseResult::Continue(None)
-                },
+                }
             },
         }
     }
