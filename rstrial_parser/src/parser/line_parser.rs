@@ -40,7 +40,6 @@ impl Iterator for LineParser<'_> {
             return Some(token);
         }
         let mut token: Option<LineItem> = None;
-        let mut texts = self.text_acc.clone();
         while let Some(result) = self.process_by_state() {
             match result {
                 ParseResult::Token(t) => {
@@ -55,7 +54,6 @@ impl Iterator for LineParser<'_> {
                     token = self.next();
                 }
                 ParseResult::Continue(Some(char)) => {
-                    texts.push(char.to_string());
                     continue;
                 }
                 ParseResult::Continue(None) => {
