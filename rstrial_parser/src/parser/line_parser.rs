@@ -1,6 +1,6 @@
 use std::str::Chars;
 
-use crate::tokens::{Line, LineItem};
+use crate::tokens::{LineItem};
 
 use super::richtext_parser::RichTextParser;
 
@@ -110,7 +110,7 @@ impl<'a> LineParser<'a> {
                     res
                 }
                 '{' => {
-                    let token = if acc.len() > 0 {
+                    let token = if !acc.is_empty() {
                         let res = Some(LineItem::Text(acc.concat()));
                         acc.clear();
                         res
