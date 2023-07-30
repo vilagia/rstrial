@@ -1,9 +1,4 @@
-use std::str::Chars;
-
-use crate::tokens::{
-    line_item::{Attribute, Terminator},
-    LineItem,
-};
+use crate::tokens::line_item::Terminator;
 
 pub struct TerminatorParser {
     pub source: String,
@@ -42,14 +37,14 @@ mod tests {
 
     #[test]
     fn test_parse_terminator_exclamation() {
-        let mut parser = TerminatorParser::new("！！。！？！！");
+        let parser = TerminatorParser::new("！！。！？！！");
         let token = parser.parse();
         assert_eq!(token, Terminator::Exclamation("！！。！？！！".to_string()));
     }
 
     #[test]
     fn test_parse_terminator_normal() {
-        let mut parser = TerminatorParser::new("！！。！？！」");
+        let parser = TerminatorParser::new("！！。！？！」");
         let token = parser.parse();
         assert_eq!(token, Terminator::Normal("！！。！？！」".to_string()));
     }
