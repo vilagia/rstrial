@@ -18,6 +18,7 @@ enum State {
     Initial,
     Normal,
     Brace,
+    SentenceTermination,
     Finished,
 }
 
@@ -73,12 +74,12 @@ impl<'a> LineParser<'a> {
                     },
                 },
                 State::Normal => match char {
-                    '。' | '！' | '？' | '」' => Self::stack_and_parse(
-                        LineItem::EndOfSentence(Terminator::Normal(char.to_string())),
-                        LineItem::Text(self.text_acc.concat()),
-                        &mut self.stacked_tokens,
-                        &mut self.text_acc,
-                    ),
+                    '。' | '！' | '？' | '」' => {
+                        let t = LineItem::Text(self.text_acc.concat());
+                        self.text_acc.clear();
+                        self.text_acc.push(char.to_string());
+                        ParseResult::ChangeState(State::SentenceTermination, Some(t))
+                    }
                     '、' | ',' => Self::stack_and_parse(
                         LineItem::Comma(char.to_string()),
                         LineItem::Text(self.text_acc.concat()),
@@ -112,12 +113,33 @@ impl<'a> LineParser<'a> {
                         ParseResult::Continue(None)
                     }
                 },
+                State::SentenceTermination => match char {
+                    '。' | '」' | '！' | '!' | '？' | '?' => {
+                        self.text_acc.push(char.to_string());
+                        ParseResult::Continue(None)
+                    }
+                    '{' => {
+                        let t = LineItem::EndOfSentence(Terminator::Normal(self.text_acc.concat()));
+                        self.text_acc.clear();
+                        ParseResult::ChangeState(State::Brace, Some(t))
+                    }
+                    _ => {
+                        let t = LineItem::EndOfSentence(Terminator::Normal(self.text_acc.concat()));
+                        self.text_acc.clear();
+                        self.text_acc.push(char.to_string());
+                        ParseResult::ChangeState(State::Normal, Some(t))
+                    }
+                },
                 State::Finished => return None,
             };
             Some(res)
-        } else if self.state != State::Finished {
-            self.state = State::Finished;
-            Some(ParseResult::Token(LineItem::EndOfParagraph))
+        } else if !self.text_acc.is_empty() {
+            let t = LineItem::EndOfSentence(Terminator::Normal(self.text_acc.concat()));
+            self.text_acc.clear();
+            Some(ParseResult::Token(t))
+        }  
+        else if self.state != State::Finished {
+            Some(ParseResult::ChangeState(State::Finished, Some(LineItem::EndOfParagraph)))
         } else {
             None
         }
@@ -194,6 +216,33 @@ mod tests {
             ];
             let parser = LineParser::new(
                 "　　　　{吾輩|わがはい}は猫である。名前はまだ無い。どこで生れたかとんと{見当|けんとう}がつかぬ。",
+            );
+            let actual = parser.collect::<Vec<LineItem>>();
+            assert_eq!(actual, expected);
+            
+        }
+        #[test]
+        fn it_returns_text_token_multi_terminator() {
+            let expected = vec![
+                LineItem::RichText(
+                    "吾輩".to_string(),
+                    tokens::line_item::Attribute::Ruby("わがはい".to_string()),
+                ),
+                LineItem::Text("は猫である".to_string()),
+                LineItem::EndOfSentence(Terminator::Normal("。。？！".to_string())),
+                LineItem::Text("名前はまだ無い".to_string()),
+                LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
+                LineItem::Text("どこで生れたかとんと".to_string()),
+                LineItem::RichText(
+                    "見当".to_string(),
+                    tokens::line_item::Attribute::Ruby("けんとう".to_string()),
+                ),
+                LineItem::Text("がつかぬ".to_string()),
+                LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
+                LineItem::EndOfParagraph,
+            ];
+            let parser = LineParser::new(
+                "　　　　{吾輩|わがはい}は猫である。。？！名前はまだ無い。どこで生れたかとんと{見当|けんとう}がつかぬ。",
             );
             let actual = parser.collect::<Vec<LineItem>>();
             assert_eq!(actual, expected);
