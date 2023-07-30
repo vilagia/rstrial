@@ -10,7 +10,7 @@ pub enum LineItem {
     // Text to be rendered with additional styles.
     RichText(String, Attribute),
     // End of sentence. Includes a string shows the end of sentence(e.g. `.`, `。` or `！`).
-    EndOfSentence(String),
+    EndOfSentence(Terminator),
     // End of paragraph.
     EndOfParagraph,
     // End of section such as a scene or a chapter. Includes a string shows the end of section(e.g. `†`).
@@ -24,4 +24,10 @@ pub enum LineItem {
 pub enum Attribute {
     // Ruby(furigana): a small text above the main text.
     Ruby(String),
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum Terminator {
+    Normal(String),
+    Exclamation(String),
 }
