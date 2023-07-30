@@ -1,7 +1,10 @@
 use std::fs;
 
 use clap::{Parser, ValueEnum};
-use rstrial_converter::converter::{vfm::line_converter::VfmLineConverter, LineConverter, aozora::line_converter::AozoraLineConverter};
+use rstrial_converter::converter::{
+    aozora::line_converter::AozoraLineConverter, vfm::line_converter::VfmLineConverter,
+    LineConverter,
+};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -52,9 +55,7 @@ fn main() {
         let parser = rstrial_parser::parser::section_parser::SectionParser::new(&contents);
         match args.format {
             OutputFormat::Vfm => {
-                let text: String = parser
-                    .map(VfmLineConverter::convert)
-                    .collect();
+                let text: String = parser.map(VfmLineConverter::convert).collect();
                 println!("{}", text)
             }
             OutputFormat::Aozora => {
