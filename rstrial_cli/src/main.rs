@@ -2,8 +2,7 @@ use std::fs;
 
 use clap::{Parser, ValueEnum};
 use rstrial_converter::converter::{
-    aozora::{line_converter::AozoraLineConverter, section_converter::AozoraSectionConverter},
-    vfm::line_converter::VfmLineConverter,
+    aozora::{section_converter::AozoraSectionConverter},
     LineConverter, SectionConverter,
 };
 
