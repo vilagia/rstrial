@@ -57,8 +57,8 @@ fn main() {
                 println!("{}", text)
             }
             OutputFormat::Aozora => {
-                // let text: String = parser.map(rstrial_converter::converter::aozora::line_converter::convert).collect();
-                // println!("{}", text)
+                let text: String = parser.map(rstrial_converter::converter::aozora::line_converter::convert).collect();
+                println!("{}", text)
             }
         }
     }
