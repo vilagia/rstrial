@@ -54,17 +54,20 @@ mod tests {
             Line::Paragraph(vec![
                 LineItem::Text("我が輩は猫である".to_string()),
                 LineItem::EndOfSentence("。".to_string()),
+                LineItem::EndOfParagraph,
             ]),
             Line::Paragraph(vec![
                 LineItem::Text("名前はまだ無い".to_string()),
                 LineItem::EndOfSentence("。".to_string()),
                 LineItem::Text("どこで生まれたのかとんと見当が付かぬ".to_string()),
                 LineItem::EndOfSentence("。".to_string()),
+                LineItem::EndOfParagraph,
             ]),
             Line::Comment(" 猫でなく犬にすることも検討".to_string()),
             Line::Conversation(vec![
                 LineItem::Text("「にゃーにゃー".to_string()),
                 LineItem::EndOfSentence("」".to_string()),
+                LineItem::EndOfParagraph,
             ]),
         ];
         assert_eq!(actual, expected);
