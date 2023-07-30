@@ -18,6 +18,7 @@ enum State {
     Initial,
     Normal,
     Brace,
+    Finished,
 }
 
 impl<'a> LineParser<'a> {
@@ -41,9 +42,7 @@ impl Iterator for LineParser<'_> {
         }
         while let Some(result) = self.process_by_state() {
             return match result {
-                ParseResult::Token(t) => {
-                    Some(t)
-                }
+                ParseResult::Token(t) => Some(t),
                 ParseResult::ChangeState(new_state, Some(t)) => {
                     self.state = new_state;
                     Some(t)
@@ -52,9 +51,7 @@ impl Iterator for LineParser<'_> {
                     self.state = new_state;
                     self.next()
                 }
-                ParseResult::Continue(_) => {
-                    continue
-                }
+                ParseResult::Continue(_) => continue,
             };
         }
         None
@@ -115,8 +112,12 @@ impl<'a> LineParser<'a> {
                         ParseResult::Continue(None)
                     }
                 },
+                State::Finished => return None,
             };
             Some(res)
+        } else if self.state != State::Finished {
+            self.state = State::Finished;
+            Some(ParseResult::Token(LineItem::EndOfParagraph))
         } else {
             None
         }
@@ -165,6 +166,7 @@ mod tests {
                 LineItem::Comma("、".to_string()),
                 LineItem::Text("まだ無い".to_string()),
                 LineItem::EndOfSentence("。".to_string()),
+                LineItem::EndOfParagraph,
             ];
             let parser = LineParser::new("我が輩は、{猫|ねこ}である。名前は、まだ無い。");
             let actual = parser.collect::<Vec<LineItem>>();
@@ -188,6 +190,7 @@ mod tests {
                 ),
                 LineItem::Text("がつかぬ".to_string()),
                 LineItem::EndOfSentence("。".to_string()),
+                LineItem::EndOfParagraph,
             ];
             let parser = LineParser::new(
                 "　　　　{吾輩|わがはい}は猫である。名前はまだ無い。どこで生れたかとんと{見当|けんとう}がつかぬ。",
