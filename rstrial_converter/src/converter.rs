@@ -46,7 +46,7 @@ pub trait SectionConverter {
     fn convert(lines: Vec<Line>) -> String {
         lines
             .into_iter()
-            .map(|line| Self::ItemConverter::convert(line))
+            .map(Self::ItemConverter::convert)
             .collect::<Vec<String>>()
             .concat()
     }

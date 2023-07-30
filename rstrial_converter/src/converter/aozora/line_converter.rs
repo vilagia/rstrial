@@ -1,8 +1,6 @@
-use rstrial_parser::tokens::{Line, LineItem};
-
 use crate::converter::LineConverter;
 
-use super::line_item_converter::{self, AozoraLineItemConverter};
+use super::line_item_converter::AozoraLineItemConverter;
 
 pub struct AozoraLineConverter;
 
