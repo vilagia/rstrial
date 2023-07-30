@@ -2,15 +2,13 @@ use rstrial_parser::tokens::{Line, LineItem};
 
 use crate::converter::LineConverter;
 
-use super::line_item_converter;
+use super::line_item_converter::{self, VfmLineItemConverter};
 
 pub struct VfmLineConverter;
 
 impl LineConverter for VfmLineConverter {
-    fn convert_line_item(item: LineItem) -> String {
-        line_item_converter::convert(item)
-    }
-} 
+    type ItemConverter = VfmLineItemConverter;
+}
 #[cfg(test)]
 mod tests {
     use super::*;
