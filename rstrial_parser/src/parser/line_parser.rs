@@ -97,18 +97,18 @@ impl<'a> LineParser<'a> {
                 },
             },
             State::Normal => match char {
-                '。' | '！' | '？' | '」' => {
-                    stacked_tokens.push(LineItem::EndOfSentence(char.to_string()));
-                    let res = ParseResult::Token(LineItem::Text(acc.concat()));
-                    acc.clear();
-                    res
-                }
-                '、' | ',' => {
-                    stacked_tokens.push(LineItem::Comma(char.to_string()));
-                    let res = ParseResult::Token(LineItem::Text(acc.concat()));
-                    acc.clear();
-                    res
-                }
+                '。' | '！' | '？' | '」' => Self::stack_and_parse(
+                    LineItem::EndOfSentence(char.to_string()), 
+                    LineItem::Text(acc.concat()),
+                    stacked_tokens, 
+                    acc,
+                ),
+                '、' | ',' => Self::stack_and_parse(
+                    LineItem::Comma(char.to_string()), 
+                    LineItem::Text(acc.concat()),
+                    stacked_tokens, 
+                    acc,
+                ),
                 '{' => {
                     let token = if !acc.is_empty() {
                         let res = Some(LineItem::Text(acc.concat()));
@@ -136,6 +136,13 @@ impl<'a> LineParser<'a> {
                 }
             },
         }
+    }
+
+    fn stack_and_parse(to_stack: LineItem, to_return: LineItem, stack: &mut Vec<LineItem>, acc: &mut Vec<String>) -> ParseResult {
+        stack.push(to_stack);
+        let res = ParseResult::Token(to_return);
+        acc.clear();
+        res    
     }
 }
 
