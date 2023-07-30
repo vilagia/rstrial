@@ -3,4 +3,5 @@
 members = [
     "rstrial_parser",
     "rstrial_converter",
+    "rstrial_cli",
 ]
