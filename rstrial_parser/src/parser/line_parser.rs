@@ -35,11 +35,10 @@ impl Iterator for LineParser<'_> {
             return Some(token);
         }
         let mut token: Option<LineItem> = None;
-        match &self.state {
-            State::Normal => {
                 let mut texts = vec![];
                 for char in self.chars.by_ref() {
-                    match char {
+            match &self.state {
+                State::Normal => match char {
                         '。' | '！' | '？' | '」' => {
                             self.stacked_tokens
                                 .push(LineItem::EndOfSentence(char.to_string()));
@@ -59,30 +58,22 @@ impl Iterator for LineParser<'_> {
                         _ => {
                             texts.push(char.to_string());
                         }
-                    }
-                }
-            }
-            State::Brace => {
-                let mut texts = vec![];
-                for char in self.chars.by_ref() {
-                    match char {
+                },
+                State::Brace => match char {
                         '}' => {
                             self.state = State::Normal;
                             let rich_text: String = texts.concat();
                             let mut richtext_parser =
-                                crate::parser::richtext_parser::RichTextParser::new(
-                                    rich_text.as_str(),
-                                );
+                            crate::parser::richtext_parser::RichTextParser::new(rich_text.as_str());
                             token = Some(richtext_parser.parse());
                             break;
                         }
                         _ => {
                             texts.push(char.to_string());
                         }
-                    }
-                }
+                },
             }
-        };
+        }
         token
     }
 }
