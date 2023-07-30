@@ -8,18 +8,18 @@ pub fn convert(line: Line) -> String {
         Line::Paragraph(items) => format!(
             "　{}",
             items
-            .into_iter()
-            .map(line_item_converter::convert)
-            .collect::<Vec<String>>()
-            .concat(),
+                .into_iter()
+                .map(line_item_converter::convert)
+                .collect::<Vec<String>>()
+                .concat(),
         ),
-        Line::Conversation(items) =>format!(
+        Line::Conversation(items) => format!(
             " {}",
             items
-            .into_iter()
-            .map(line_item_converter::convert)
-            .collect::<Vec<String>>()
-            .concat(),
+                .into_iter()
+                .map(line_item_converter::convert)
+                .collect::<Vec<String>>()
+                .concat(),
         ),
         Line::Quotation(items) => format!(
             "> {}",
