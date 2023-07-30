@@ -39,27 +39,25 @@ impl Iterator for LineParser<'_> {
         if let Some(token) = self.stacked_tokens.pop() {
             return Some(token);
         }
-        let mut token: Option<LineItem> = None;
         while let Some(result) = self.process_by_state() {
-            match result {
+            return match result {
                 ParseResult::Token(t) => {
-                    token = Some(t);
+                    Some(t)
                 }
                 ParseResult::ChangeState(new_state, Some(t)) => {
                     self.state = new_state;
-                    token = Some(t);
+                    Some(t)
                 }
                 ParseResult::ChangeState(new_state, None) => {
                     self.state = new_state;
-                    token = self.next();
+                    self.next()
                 }
                 ParseResult::Continue(_) => {
-                    continue;
+                    continue
                 }
             };
-            break;
         }
-        token
+        None
     }
 }
 
