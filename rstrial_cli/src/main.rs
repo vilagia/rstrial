@@ -2,8 +2,9 @@ use std::fs;
 
 use clap::{Parser, ValueEnum};
 use rstrial_converter::converter::{
-    aozora::line_converter::AozoraLineConverter, vfm::line_converter::VfmLineConverter,
-    LineConverter,
+    aozora::{line_converter::AozoraLineConverter, section_converter::AozoraSectionConverter},
+    vfm::line_converter::VfmLineConverter,
+    LineConverter, SectionConverter,
 };
 
 #[derive(Parser, Debug)]
@@ -53,13 +54,14 @@ fn main() {
         let contents =
             fs::read_to_string(args.target).expect("Should have been able to read the file");
         let parser = rstrial_parser::parser::section_parser::SectionParser::new(&contents);
+        let tokens = parser.collect::<Vec<rstrial_parser::tokens::Line>>();
         match args.format {
             OutputFormat::Vfm => {
-                let text: String = parser.map(VfmLineConverter::convert).collect();
+                let text: String = AozoraSectionConverter::convert(tokens);
                 println!("{}", text)
             }
             OutputFormat::Aozora => {
-                let text: String = parser.map(AozoraLineConverter::convert).collect();
+                let text: String = AozoraSectionConverter::convert(tokens);
                 println!("{}", text)
             }
         }
