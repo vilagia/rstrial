@@ -9,6 +9,8 @@ impl LineConverter for VfmLineConverter {
 }
 #[cfg(test)]
 mod tests {
+    use rstrial_parser::tokens::Line;
+
     use super::*;
 
     #[test]

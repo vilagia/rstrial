@@ -10,6 +10,8 @@ impl LineConverter for AozoraLineConverter {
 
 #[cfg(test)]
 mod tests {
+    use rstrial_parser::tokens::Line;
+
     use super::*;
 
     #[test]
