@@ -1,6 +1,6 @@
 use std::str::Chars;
 
-use crate::tokens::{LineItem};
+use crate::tokens::LineItem;
 
 use super::richtext_parser::RichTextParser;
 
@@ -41,34 +41,24 @@ impl Iterator for LineParser<'_> {
         }
         let mut token: Option<LineItem> = None;
         let mut texts = self.text_acc.clone();
-        let mut stacked_tokens: Vec<LineItem> = self.stacked_tokens.clone();
-        for char in self.chars.by_ref() {
-            let state = self.state.clone();
-            println!("acc: {:?}, state: {:?}", texts, state);
-            match Self::process_by_state(state, &mut stacked_tokens, char, &mut texts) {
+        while let Some(result) = self.process_by_state() {
+            match result {
                 ParseResult::Token(t) => {
-                    self.stacked_tokens = stacked_tokens.clone();
-                    self.text_acc = texts.clone();
                     token = Some(t);
                 }
                 ParseResult::ChangeState(new_state, Some(t)) => {
-                    self.stacked_tokens = stacked_tokens.clone();
                     self.state = new_state;
-                    self.text_acc = texts.clone();
                     token = Some(t);
                 }
                 ParseResult::ChangeState(new_state, None) => {
                     self.state = new_state;
-                    self.text_acc = texts.clone();
                     token = self.next();
                 }
                 ParseResult::Continue(Some(char)) => {
                     texts.push(char.to_string());
-                    self.text_acc = texts.clone();
                     continue;
                 }
                 ParseResult::Continue(None) => {
-                    self.text_acc = texts.clone();
                     continue;
                 }
             };
@@ -79,70 +69,76 @@ impl Iterator for LineParser<'_> {
 }
 
 impl<'a> LineParser<'a> {
-    fn process_by_state(
-        state: State,
-        stacked_tokens: &mut Vec<LineItem>,
-        char: char,
-        acc: &mut Vec<String>,
-    ) -> ParseResult {
-        match state {
-            State::Initial => match char {
-                ' ' | '　' => ParseResult::Continue(None),
-                _ => match char {
-                    '{' => ParseResult::ChangeState(State::Brace, None),
+    fn process_by_state(&mut self) -> Option<ParseResult> {
+        if let Some(char) = self.chars.next() {
+            let res = match self.state {
+                State::Initial => match char {
+                    ' ' | '　' => ParseResult::Continue(None),
+                    _ => match char {
+                        '{' => ParseResult::ChangeState(State::Brace, None),
+                        _ => {
+                            self.text_acc.push(char.to_string());
+                            ParseResult::ChangeState(State::Normal, None)
+                        }
+                    },
+                },
+                State::Normal => match char {
+                    '。' | '！' | '？' | '」' => Self::stack_and_parse(
+                        LineItem::EndOfSentence(char.to_string()),
+                        LineItem::Text(self.text_acc.concat()),
+                        &mut self.stacked_tokens,
+                        &mut self.text_acc,
+                    ),
+                    '、' | ',' => Self::stack_and_parse(
+                        LineItem::Comma(char.to_string()),
+                        LineItem::Text(self.text_acc.concat()),
+                        &mut self.stacked_tokens,
+                        &mut self.text_acc,
+                    ),
+                    '{' => {
+                        let token = if !self.text_acc.is_empty() {
+                            let res = Some(LineItem::Text(self.text_acc.concat()));
+                            self.text_acc.clear();
+                            res
+                        } else {
+                            None
+                        };
+                        ParseResult::ChangeState(State::Brace, token)
+                    }
                     _ => {
-                        acc.push(char.to_string());
-                        ParseResult::ChangeState(State::Normal, None)
+                        self.text_acc.push(char.to_string());
+                        ParseResult::Continue(None)
                     }
                 },
-            },
-            State::Normal => match char {
-                '。' | '！' | '？' | '」' => Self::stack_and_parse(
-                    LineItem::EndOfSentence(char.to_string()), 
-                    LineItem::Text(acc.concat()),
-                    stacked_tokens, 
-                    acc,
-                ),
-                '、' | ',' => Self::stack_and_parse(
-                    LineItem::Comma(char.to_string()), 
-                    LineItem::Text(acc.concat()),
-                    stacked_tokens, 
-                    acc,
-                ),
-                '{' => {
-                    let token = if !acc.is_empty() {
-                        let res = Some(LineItem::Text(acc.concat()));
-                        acc.clear();
-                        res
-                    } else {
-                        None
-                    };
-                    ParseResult::ChangeState(State::Brace, token)
-                }
-                _ => {
-                    acc.push(char.to_string());
-                    ParseResult::Continue(None)
-                }
-            },
-            State::Brace => match char {
-                '}' => {
-                    let rich_text_token = RichTextParser::new(acc.concat().as_str()).parse();
-                    acc.clear();
-                    ParseResult::ChangeState(State::Normal, Some(rich_text_token))
-                }
-                _ => {
-                    acc.push(char.to_string());
-                    ParseResult::Continue(None)
-                }
-            },
+                State::Brace => match char {
+                    '}' => {
+                        let rich_text_token =
+                            RichTextParser::new(self.text_acc.concat().as_str()).parse();
+                        self.text_acc.clear();
+                        ParseResult::ChangeState(State::Normal, Some(rich_text_token))
+                    }
+                    _ => {
+                        self.text_acc.push(char.to_string());
+                        ParseResult::Continue(None)
+                    }
+                },
+            };
+            Some(res)
+        } else {
+            None
         }
     }
 
-    fn stack_and_parse(to_stack: LineItem, to_return: LineItem, stack: &mut Vec<LineItem>, acc: &mut Vec<String>) -> ParseResult {
+    fn stack_and_parse(
+        to_stack: LineItem,
+        to_return: LineItem,
+        stack: &mut Vec<LineItem>,
+        acc: &mut Vec<String>,
+    ) -> ParseResult {
         stack.push(to_stack);
         let res = ParseResult::Token(to_return);
         acc.clear();
-        res    
+        res
     }
 }
 
