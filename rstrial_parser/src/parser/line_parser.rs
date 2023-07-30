@@ -49,11 +49,11 @@ impl Iterator for LineParser<'_> {
                             _ => {
                                 texts.push(char.to_string());
                                 State::Normal
-                            },
+                            }
                         };
                         continue;
                     }
-                }
+                },
                 State::Normal => match char {
                     '。' | '！' | '？' | '」' => {
                         self.stacked_tokens
@@ -96,6 +96,48 @@ impl Iterator for LineParser<'_> {
         }
         token
     }
+}
+
+impl<'a> LineParser<'a> {
+    fn process_by_state(&self) -> ParseResult {
+        if let Some(char) = self.chars.next() {
+            match &self.state {
+                State::Initial => match char {
+                    ' ' | '　' => ParseResult::Continue(None),
+                    _ => match char {
+                        '{' => ParseResult::ChangeState(State::Brace, None),
+                        _ => ParseResult::ChangeState(State::Normal, Some(char)),
+                    },
+                },
+                State::Normal => match char {
+                    '。' | '！' | '？' | '」' => {
+                        self.stacked_tokens
+                            .push(LineItem::EndOfSentence(char.to_string()));
+                        ParseResult::Token(LineItem::Text(texts.concat()))
+                    }
+                    '、' | ',' => {
+                        self.stacked_tokens.push(LineItem::Comma(char.to_string()));
+                        ParseResult::Token(LineItem::Text(texts.concat()))
+                    }
+                    '{' => ParseResult::ChangeState(State::Brace, None),
+                    _ => ParseResult::Continue(Some(char)),
+                },
+                State::Brace => match char {
+                    '}' => ParseResult::ChangeState(State::Normal, None),
+                    _ => ParseResult::Continue(Some(char)),
+                },
+            }
+        } else {
+            ParseResult::Finish
+        }
+    }
+}
+
+enum ParseResult {
+    Token(LineItem),
+    ChangeState(State, Option<char>),
+    Continue(Option<char>),
+    Finish,
 }
 
 #[cfg(test)]
