@@ -2,7 +2,7 @@ use std::str::Chars;
 
 use crate::tokens::{line_item::Terminator, LineItem};
 
-use super::richtext_parser::RichTextParser;
+use super::{richtext_parser::RichTextParser, terminator_parser::TerminatorParser};
 
 #[derive(Debug)]
 pub struct LineParser<'a> {
@@ -124,7 +124,8 @@ impl<'a> LineParser<'a> {
                         ParseResult::ChangeState(State::Brace, Some(t))
                     }
                     _ => {
-                        let t = LineItem::EndOfSentence(Terminator::Normal(self.text_acc.concat()));
+                        let parser = TerminatorParser::new(self.text_acc.concat().as_str());
+                        let t = LineItem::EndOfSentence(parser.parse());
                         self.text_acc.clear();
                         self.text_acc.push(char.to_string());
                         ParseResult::ChangeState(State::Normal, Some(t))
@@ -134,12 +135,15 @@ impl<'a> LineParser<'a> {
             };
             Some(res)
         } else if !self.text_acc.is_empty() {
-            let t = LineItem::EndOfSentence(Terminator::Normal(self.text_acc.concat()));
+            let parser = TerminatorParser::new(self.text_acc.concat().as_str());
+            let t = LineItem::EndOfSentence(parser.parse());
             self.text_acc.clear();
             Some(ParseResult::Token(t))
-        }  
-        else if self.state != State::Finished {
-            Some(ParseResult::ChangeState(State::Finished, Some(LineItem::EndOfParagraph)))
+        } else if self.state != State::Finished {
+            Some(ParseResult::ChangeState(
+                State::Finished,
+                Some(LineItem::EndOfParagraph),
+            ))
         } else {
             None
         }
@@ -219,7 +223,6 @@ mod tests {
             );
             let actual = parser.collect::<Vec<LineItem>>();
             assert_eq!(actual, expected);
-            
         }
         #[test]
         fn it_returns_text_token_multi_terminator() {
@@ -229,9 +232,9 @@ mod tests {
                     tokens::line_item::Attribute::Ruby("わがはい".to_string()),
                 ),
                 LineItem::Text("は猫である".to_string()),
-                LineItem::EndOfSentence(Terminator::Normal("。。？！".to_string())),
+                LineItem::EndOfSentence(Terminator::Exclamation("。。？！".to_string())),
                 LineItem::Text("名前はまだ無い".to_string()),
-                LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
+                LineItem::EndOfSentence(Terminator::Normal("。。".to_string())),
                 LineItem::Text("どこで生れたかとんと".to_string()),
                 LineItem::RichText(
                     "見当".to_string(),
@@ -242,7 +245,7 @@ mod tests {
                 LineItem::EndOfParagraph,
             ];
             let parser = LineParser::new(
-                "　　　　{吾輩|わがはい}は猫である。。？！名前はまだ無い。どこで生れたかとんと{見当|けんとう}がつかぬ。",
+                "　　　　{吾輩|わがはい}は猫である。。？！名前はまだ無い。。どこで生れたかとんと{見当|けんとう}がつかぬ。",
             );
             let actual = parser.collect::<Vec<LineItem>>();
             assert_eq!(actual, expected);
