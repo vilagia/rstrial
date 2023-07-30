@@ -53,10 +53,7 @@ impl Iterator for LineParser<'_> {
                     self.state = new_state;
                     token = self.next();
                 }
-                ParseResult::Continue(Some(char)) => {
-                    continue;
-                }
-                ParseResult::Continue(None) => {
+                ParseResult::Continue(_) => {
                     continue;
                 }
             };
