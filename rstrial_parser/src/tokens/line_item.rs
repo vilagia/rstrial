@@ -1,5 +1,5 @@
 // Tokens for novel-style text.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum LineItem {
     // Plaintext to be rendered as-is.
     Text(String),
@@ -20,7 +20,7 @@ pub enum LineItem {
 }
 
 // Tokens for Rich Text.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Attribute {
     // Ruby(furigana): a small text above the main text.
     Ruby(String),
