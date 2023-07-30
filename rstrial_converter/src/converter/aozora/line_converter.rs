@@ -1,37 +1,16 @@
-use rstrial_parser::tokens::Line;
+use rstrial_parser::tokens::{Line, LineItem};
+
+use crate::converter::LineConverter;
 
 use super::line_item_converter;
 
-pub fn convert(line: Line) -> String {
-    let breakline = "\n".to_string();
-    match line {
-        Line::Paragraph(items) => format!(
-            "　{}",
-            items
-                .into_iter()
-                .map(line_item_converter::convert)
-                .collect::<Vec<String>>()
-                .concat(),
-        ),
-        Line::Conversation(items) => format!(
-            " {}",
-            items
-                .into_iter()
-                .map(line_item_converter::convert)
-                .collect::<Vec<String>>()
-                .concat(),
-        ),
-        Line::Quotation(items) => format!(
-            "> {}",
-            items
-                .into_iter()
-                .map(|item| { line_item_converter::convert(item) })
-                .collect::<Vec<String>>()
-                .concat()
-        ),
-        Line::Comment(_) => breakline,
+pub struct AozoraLineConverter;
+
+impl LineConverter for AozoraLineConverter {
+    fn convert_line_item(item: LineItem) -> String {
+        line_item_converter::convert(item)
     }
-}
+} 
 
 #[cfg(test)]
 mod tests {
@@ -51,7 +30,7 @@ mod tests {
             rstrial_parser::tokens::LineItem::EndOfSentence("。".to_string()),
             rstrial_parser::tokens::LineItem::EndOfParagraph,
         ]);
-        let result = convert(line);
+        let result = AozoraLineConverter::convert(line);
         assert_eq!(result, "　我が輩は、|名前《なまえ》はまだ無い。\n");
     }
 
@@ -69,7 +48,7 @@ mod tests {
             rstrial_parser::tokens::LineItem::EndOfSentence("」".to_string()),
             rstrial_parser::tokens::LineItem::EndOfParagraph,
         ]);
-        let result = convert(line);
+        let result = AozoraLineConverter::convert(line);
         assert_eq!(result, " 「我が輩は、|名前《なまえ》はまだ無い」\n");
     }
 }
