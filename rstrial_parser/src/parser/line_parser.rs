@@ -1,6 +1,6 @@
 use std::str::Chars;
 
-use crate::tokens::LineItem;
+use crate::tokens::{line_item::Terminator, LineItem};
 
 use super::richtext_parser::RichTextParser;
 
@@ -74,7 +74,7 @@ impl<'a> LineParser<'a> {
                 },
                 State::Normal => match char {
                     '。' | '！' | '？' | '」' => Self::stack_and_parse(
-                        LineItem::EndOfSentence(char.to_string()),
+                        LineItem::EndOfSentence(Terminator::Normal(char.to_string())),
                         LineItem::Text(self.text_acc.concat()),
                         &mut self.stacked_tokens,
                         &mut self.text_acc,
@@ -161,11 +161,11 @@ mod tests {
                     tokens::line_item::Attribute::Ruby("ねこ".to_string()),
                 ),
                 LineItem::Text("である".to_string()),
-                LineItem::EndOfSentence("。".to_string()),
+                LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
                 LineItem::Text("名前は".to_string()),
                 LineItem::Comma("、".to_string()),
                 LineItem::Text("まだ無い".to_string()),
-                LineItem::EndOfSentence("。".to_string()),
+                LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
                 LineItem::EndOfParagraph,
             ];
             let parser = LineParser::new("我が輩は、{猫|ねこ}である。名前は、まだ無い。");
@@ -180,16 +180,16 @@ mod tests {
                     tokens::line_item::Attribute::Ruby("わがはい".to_string()),
                 ),
                 LineItem::Text("は猫である".to_string()),
-                LineItem::EndOfSentence("。".to_string()),
+                LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
                 LineItem::Text("名前はまだ無い".to_string()),
-                LineItem::EndOfSentence("。".to_string()),
+                LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
                 LineItem::Text("どこで生れたかとんと".to_string()),
                 LineItem::RichText(
                     "見当".to_string(),
                     tokens::line_item::Attribute::Ruby("けんとう".to_string()),
                 ),
                 LineItem::Text("がつかぬ".to_string()),
-                LineItem::EndOfSentence("。".to_string()),
+                LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
                 LineItem::EndOfParagraph,
             ];
             let parser = LineParser::new(

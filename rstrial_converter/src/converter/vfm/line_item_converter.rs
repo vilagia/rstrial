@@ -1,4 +1,4 @@
-use rstrial_parser::tokens::LineItem;
+use rstrial_parser::tokens::{line_item::Terminator, LineItem};
 
 use crate::converter::LineItemConverter;
 
@@ -15,7 +15,8 @@ impl LineItemConverter for VfmLineItemConverter {
                     format!("{{{text}|{ruby}}}")
                 }
             },
-            LineItem::EndOfSentence(footer) => footer,
+            LineItem::EndOfSentence(Terminator::Normal(terminator)) => terminator,
+            LineItem::EndOfSentence(Terminator::Exclamation(terminator)) => terminator,
             LineItem::EndOfParagraph => breakline,
             LineItem::EndOfSection(_) => breakline,
             LineItem::EOF => breakline,
@@ -60,7 +61,7 @@ mod tests {
 
     #[test]
     fn test_convert_end_of_sentence() {
-        let item = LineItem::EndOfSentence(".".to_string());
+        let item = LineItem::EndOfSentence(Terminator::Normal(".".to_string()));
         let result = VfmLineItemConverter::convert(item);
         assert_eq!(result, ".");
     }

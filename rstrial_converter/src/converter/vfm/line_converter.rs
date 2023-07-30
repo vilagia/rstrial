@@ -9,7 +9,7 @@ impl LineConverter for VfmLineConverter {
 }
 #[cfg(test)]
 mod tests {
-    use rstrial_parser::tokens::Line;
+    use rstrial_parser::tokens::{line_item::Terminator, Line};
 
     use super::*;
 
@@ -24,7 +24,7 @@ mod tests {
                 rstrial_parser::tokens::line_item::Attribute::Ruby("なまえ".to_string()),
             ),
             rstrial_parser::tokens::LineItem::Text("はまだ無い".to_string()),
-            rstrial_parser::tokens::LineItem::EndOfSentence("。".to_string()),
+            rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
             rstrial_parser::tokens::LineItem::EndOfParagraph,
         ]);
         let result = VfmLineConverter::convert(line);
@@ -42,7 +42,7 @@ mod tests {
                 rstrial_parser::tokens::line_item::Attribute::Ruby("なまえ".to_string()),
             ),
             rstrial_parser::tokens::LineItem::Text("はまだ無い".to_string()),
-            rstrial_parser::tokens::LineItem::EndOfSentence("」".to_string()),
+            rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("」".to_string())),
             rstrial_parser::tokens::LineItem::EndOfParagraph,
         ]);
         let result = VfmLineConverter::convert(line);
