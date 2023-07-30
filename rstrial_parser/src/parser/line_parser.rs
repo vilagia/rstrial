@@ -12,6 +12,7 @@ pub struct LineParser<'a> {
 
 #[derive(Debug)]
 enum State {
+    Initial,
     Normal,
     Brace,
 }
@@ -21,7 +22,7 @@ impl<'a> LineParser<'a> {
         Self {
             source: Box::new(line.to_string()),
             chars: Box::new(line.chars()),
-            state: State::Normal,
+            state: State::Initial,
             stacked_tokens: vec![],
         }
     }
@@ -38,6 +39,21 @@ impl Iterator for LineParser<'_> {
         let mut texts = vec![];
         for char in self.chars.by_ref() {
             match &self.state {
+                State::Initial => match char {
+                    ' ' | '　' => {
+                        continue;
+                    }
+                    _ => {
+                        self.state = match char {
+                            '{' => State::Brace,
+                            _ => {
+                                texts.push(char.to_string());
+                                State::Normal
+                            },
+                        };
+                        continue;
+                    }
+                }
                 State::Normal => match char {
                     '。' | '！' | '？' | '」' => {
                         self.stacked_tokens
@@ -131,7 +147,7 @@ mod tests {
                 LineItem::EndOfSentence("。".to_string()),
             ];
             let parser = LineParser::new(
-                "{吾輩|わがはい}は猫である。名前はまだ無い。どこで生れたかとんと{見当|けんとう}がつかぬ。",
+                "　　　　{吾輩|わがはい}は猫である。名前はまだ無い。どこで生れたかとんと{見当|けんとう}がつかぬ。",
             );
             let actual = parser.collect::<Vec<LineItem>>();
             assert_eq!(actual, expected);
