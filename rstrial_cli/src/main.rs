@@ -2,7 +2,6 @@ use std::fs;
 
 use clap::{Parser, ValueEnum};
 
-
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -30,10 +29,7 @@ enum OutputFormat {
 
 impl ValueEnum for OutputFormat {
     fn value_variants<'a>() -> &'a [Self] {
-        &[
-            OutputFormat::Vfm,
-            OutputFormat::Aozora,
-        ]
+        &[OutputFormat::Vfm, OutputFormat::Aozora]
     }
 
     fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
@@ -50,20 +46,20 @@ fn main() {
         println!("{} is directory", args.target.display());
     } else {
         println!("{} is file", args.target.display());
-        let contents = fs::read_to_string(args.target)
-        .expect("Should have been able to read the file");        
+        let contents =
+            fs::read_to_string(args.target).expect("Should have been able to read the file");
         let parser = rstrial_parser::parser::section_parser::SectionParser::new(&contents);
         match args.format {
             OutputFormat::Vfm => {
-                let text: String = parser.map(rstrial_converter::converter::vfm::line_converter::convert).collect();
+                let text: String = parser
+                    .map(rstrial_converter::converter::vfm::line_converter::convert)
+                    .collect();
                 println!("{}", text)
-            },
+            }
             OutputFormat::Aozora => {
                 // let text: String = parser.map(rstrial_converter::converter::aozora::line_converter::convert).collect();
                 // println!("{}", text)
-            },
+            }
         }
     }
 }
-
-
