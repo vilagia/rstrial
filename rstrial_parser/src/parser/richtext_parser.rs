@@ -44,7 +44,7 @@ impl<'a> RichTextParser<'a> {
             State::Ruby => Attribute::Ruby(attribute_chars.concat()),
             State::Text => panic!("Invalid state."),
         };
-        LineItem::RichText(texts.concat(), attribute)
+        LineItem::RichText((texts.concat(), attribute))
     }
 }
 
@@ -58,7 +58,7 @@ mod tests {
         let token = parser.parse();
         assert_eq!(
             token,
-            LineItem::RichText("漢字".to_string(), Attribute::Ruby("かんじ".to_string()))
+            LineItem::RichText(("漢字".to_string(), Attribute::Ruby("かんじ".to_string())))
         );
     }
 }

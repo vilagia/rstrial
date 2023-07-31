@@ -20,10 +20,10 @@ mod tests {
             rstrial_parser::tokens::LineItem::Text("我が輩は".to_string()),
             rstrial_parser::tokens::LineItem::Comma("、".to_string()),
             rstrial_parser::tokens::LineItem::Comment("猫である。".to_string()),
-            rstrial_parser::tokens::LineItem::RichText(
+            rstrial_parser::tokens::LineItem::RichText((
                 "名前".to_string(),
                 rstrial_parser::tokens::line_item::Attribute::Ruby("なまえ".to_string()),
-            ),
+            )),
             rstrial_parser::tokens::LineItem::Text("はまだ無い".to_string()),
             rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
             rstrial_parser::tokens::LineItem::EndOfParagraph,
@@ -38,10 +38,10 @@ mod tests {
             rstrial_parser::tokens::LineItem::Text("「我が輩は".to_string()),
             rstrial_parser::tokens::LineItem::Comma("、".to_string()),
             rstrial_parser::tokens::LineItem::Comment("猫である。".to_string()),
-            rstrial_parser::tokens::LineItem::RichText(
+            rstrial_parser::tokens::LineItem::RichText((
                 "名前".to_string(),
                 rstrial_parser::tokens::line_item::Attribute::Ruby("なまえ".to_string()),
-            ),
+            )),
             rstrial_parser::tokens::LineItem::Text("はまだ無い".to_string()),
             rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("」".to_string())),
             rstrial_parser::tokens::LineItem::EndOfParagraph,
