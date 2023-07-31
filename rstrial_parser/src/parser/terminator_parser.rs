@@ -2,18 +2,12 @@ use crate::tokens::line_item::Terminator;
 
 pub struct TerminatorParser {
     pub source: String,
-    state: State,
-}
-
-enum State {
-    Normal,
 }
 
 impl TerminatorParser {
     pub fn new(text: &str) -> Self {
         Self {
             source: text.to_string(),
-            state: State::Normal,
         }
     }
 
