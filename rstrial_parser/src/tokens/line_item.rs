@@ -20,13 +20,8 @@ pub enum LineItem {
     // End of sentence. Includes a string shows the end of sentence(e.g. `.`, `。` or `！`).
     #[regex(r"[!?！？。」]+", priority = 2, callback = parse_terminator)]
     EndOfSentence(Terminator),
-    // End of paragraph.
-    #[regex(r"\n")]
-    EndOfParagraph,
     // End of section such as a scene or a chapter. Includes a string shows the end of section(e.g. `†`).
     EndOfSection(String),
-    // End of file.
-    EOF,
 }
 
 fn parse_to_string(lex: &mut Lexer<LineItem>) -> String {

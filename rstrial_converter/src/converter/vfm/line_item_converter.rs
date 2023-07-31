@@ -17,9 +17,7 @@ impl LineItemConverter for VfmLineItemConverter {
             },
             LineItem::EndOfSentence(Terminator::Normal(terminator)) => terminator,
             LineItem::EndOfSentence(Terminator::Exclamation(terminator)) => terminator,
-            LineItem::EndOfParagraph => breakline,
             LineItem::EndOfSection(_) => breakline,
-            LineItem::EOF => breakline,
         }
     }
 }
@@ -67,22 +65,8 @@ mod tests {
     }
 
     #[test]
-    fn test_convert_end_of_paragraph() {
-        let item = LineItem::EndOfParagraph;
-        let result = VfmLineItemConverter::convert(item);
-        assert_eq!(result, "\n");
-    }
-
-    #[test]
     fn test_convert_end_of_section() {
         let item = LineItem::EndOfSection("".to_string());
-        let result = VfmLineItemConverter::convert(item);
-        assert_eq!(result, "\n");
-    }
-
-    #[test]
-    fn test_convert_eof() {
-        let item = LineItem::EOF;
         let result = VfmLineItemConverter::convert(item);
         assert_eq!(result, "\n");
     }

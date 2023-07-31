@@ -26,10 +26,9 @@ mod tests {
             )),
             rstrial_parser::tokens::LineItem::Text("はまだ無い".to_string()),
             rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
-            rstrial_parser::tokens::LineItem::EndOfParagraph,
         ]);
         let result = AozoraLineConverter::convert(line);
-        assert_eq!(result, "　我が輩は、|名前《なまえ》はまだ無い。\n");
+        assert_eq!(result, "　我が輩は、|名前《なまえ》はまだ無い。");
     }
 
     #[test]
@@ -44,9 +43,8 @@ mod tests {
             )),
             rstrial_parser::tokens::LineItem::Text("はまだ無い".to_string()),
             rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("」".to_string())),
-            rstrial_parser::tokens::LineItem::EndOfParagraph,
         ]);
         let result = AozoraLineConverter::convert(line);
-        assert_eq!(result, " 「我が輩は、|名前《なまえ》はまだ無い」\n");
+        assert_eq!(result, " 「我が輩は、|名前《なまえ》はまだ無い」");
     }
 }
