@@ -6,7 +6,7 @@ use crate::parser::terminator_parser::TerminatorParser;
 #[derive(Logos, Debug, PartialEq, Clone)]
 pub enum LineItem {
     // Plaintext to be rendered as-is.
-    #[regex(r"\w+", priority = 0, callback = parse_to_string)]
+    #[regex(r"[^!?！？。」]+", priority = 0, callback = parse_to_string)]
     Text(String),
     // A Sentence delimiter such as `,` or `、`.
     #[regex(r",|、|，", parse_to_string)]
@@ -18,7 +18,7 @@ pub enum LineItem {
     #[regex(r"\{\w+\|\w+\}", parse_rich_text)]
     RichText((String, Attribute)),
     // End of sentence. Includes a string shows the end of sentence(e.g. `.`, `。` or `！`).
-    #[regex(r"(!|\?|！|？|。)+", priority = 2, callback = parse_terminator)]
+    #[regex(r"[!?！？。」]+", priority = 2, callback = parse_terminator)]
     EndOfSentence(Terminator),
     // End of paragraph.
     #[regex(r"\n")]
