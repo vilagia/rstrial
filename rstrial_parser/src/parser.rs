@@ -1,3 +1,3 @@
-pub mod richtext_parser;
-pub mod section_parser;
-pub mod terminator_parser;
+pub(crate) mod richtext_parser;
+pub(crate) mod section_parser;
+pub(crate) mod terminator_parser;
