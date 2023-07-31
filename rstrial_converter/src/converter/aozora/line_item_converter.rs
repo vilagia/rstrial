@@ -10,7 +10,7 @@ impl LineItemConverter for AozoraLineItemConverter {
             LineItem::Text(text) => text,
             LineItem::Comma(comma) => comma,
             LineItem::Comment(_) => "".to_string(),
-            LineItem::RichText(text, attribute) => match attribute {
+            LineItem::RichText((text, attribute)) => match attribute {
                 rstrial_parser::tokens::line_item::Attribute::Ruby(ruby) => {
                     format!("|{text}《{ruby}》")
                 }
@@ -53,10 +53,10 @@ mod tests {
 
     #[test]
     fn test_convert_rich_text() {
-        let item = LineItem::RichText(
+        let item = LineItem::RichText((
             "text".to_string(),
             rstrial_parser::tokens::line_item::Attribute::Ruby("ruby".to_string()),
-        );
+        ));
         let result = AozoraLineItemConverter::convert(item);
         assert_eq!(result, "|text《ruby》");
     }

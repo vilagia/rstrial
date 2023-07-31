@@ -182,10 +182,10 @@ mod tests {
             let expected = vec![
                 LineItem::Text("我が輩は".to_string()),
                 LineItem::Comma("、".to_string()),
-                LineItem::RichText(
+                LineItem::RichText((
                     "猫".to_string(),
                     tokens::line_item::Attribute::Ruby("ねこ".to_string()),
-                ),
+                )),
                 LineItem::Text("である".to_string()),
                 LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
                 LineItem::Text("名前は".to_string()),
@@ -201,19 +201,19 @@ mod tests {
         #[test]
         fn it_returns_text_token_ruby_on_head() {
             let expected = vec![
-                LineItem::RichText(
+                LineItem::RichText((
                     "吾輩".to_string(),
                     tokens::line_item::Attribute::Ruby("わがはい".to_string()),
-                ),
+                )),
                 LineItem::Text("は猫である".to_string()),
                 LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
                 LineItem::Text("名前はまだ無い".to_string()),
                 LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
                 LineItem::Text("どこで生れたかとんと".to_string()),
-                LineItem::RichText(
+                LineItem::RichText((
                     "見当".to_string(),
                     tokens::line_item::Attribute::Ruby("けんとう".to_string()),
-                ),
+                )),
                 LineItem::Text("がつかぬ".to_string()),
                 LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
                 LineItem::EndOfParagraph,
@@ -227,19 +227,19 @@ mod tests {
         #[test]
         fn it_returns_text_token_multi_terminator() {
             let expected = vec![
-                LineItem::RichText(
+                LineItem::RichText((
                     "吾輩".to_string(),
                     tokens::line_item::Attribute::Ruby("わがはい".to_string()),
-                ),
+                )),
                 LineItem::Text("は猫である".to_string()),
                 LineItem::EndOfSentence(Terminator::Exclamation("。。？！".to_string())),
                 LineItem::Text("名前はまだ無い".to_string()),
                 LineItem::EndOfSentence(Terminator::Normal("。。".to_string())),
                 LineItem::Text("どこで生れたかとんと".to_string()),
-                LineItem::RichText(
+                LineItem::RichText((
                     "見当".to_string(),
                     tokens::line_item::Attribute::Ruby("けんとう".to_string()),
-                ),
+                )),
                 LineItem::Text("がつかぬ".to_string()),
                 LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
                 LineItem::EndOfParagraph,
