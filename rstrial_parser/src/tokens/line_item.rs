@@ -34,13 +34,13 @@ fn parse_to_string(lex: &mut Lexer<LineItem>) -> String {
 }
 
 fn parse_terminator(lex: &mut Lexer<LineItem>) -> Terminator {
-    let slice = lex.slice().to_string().clone();
+    let slice = lex.slice().to_string();
     let parser = TerminatorParser::new(slice.as_str());
     parser.parse()
 }
 
 fn parse_rich_text(lex: &mut Lexer<LineItem>) -> Option<(String, Attribute)> {
-    let slice = lex.slice().to_string().clone();
+    let slice = lex.slice().to_string();
     let (text, attr) = slice
         .strip_prefix('{')?
         .strip_suffix('}')?
