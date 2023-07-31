@@ -51,7 +51,7 @@ fn main() {
         println!("{} is file", args.target.display());
         let contents =
             fs::read_to_string(args.target).expect("Should have been able to read the file");
-        let parser = rstrial_parser::parser::section_parser::SectionParser::new(&contents);
+        let parser = rstrial_parser::SectionParser::new(&contents);
         let tokens = parser.collect::<Vec<rstrial_parser::tokens::Line>>();
         match args.format {
             OutputFormat::Vfm => {
