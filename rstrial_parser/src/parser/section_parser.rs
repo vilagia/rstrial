@@ -23,16 +23,21 @@ impl<'a> Iterator for SectionParser<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(line_str) = self.lines.next() {
-            let line_parser = LineItem::lexer(line_str).chain([Ok(LineItem::EndOfParagraph)].into_iter());
+            let line_parser =
+                LineItem::lexer(line_str).chain([Ok(LineItem::EndOfParagraph)].into_iter());
             if line_str.starts_with("//") {
                 Some(Line::Comment(
                     line_str.strip_prefix("//").unwrap().to_string(),
                 ))
             } else if line_str.starts_with('「') {
-                let items: Vec<LineItem> = line_parser.map(|item| item.unwrap()).collect::<Vec<LineItem>>();
+                let items: Vec<LineItem> = line_parser
+                    .map(|item| item.unwrap())
+                    .collect::<Vec<LineItem>>();
                 Some(Line::Conversation(items))
             } else {
-                let items: Vec<LineItem> = line_parser.map(|item| item.unwrap()).collect::<Vec<LineItem>>();
+                let items: Vec<LineItem> = line_parser
+                    .map(|item| item.unwrap())
+                    .collect::<Vec<LineItem>>();
                 Some(Line::Paragraph(items))
             }
         } else {
