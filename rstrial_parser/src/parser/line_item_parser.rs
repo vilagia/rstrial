@@ -30,13 +30,12 @@ impl LineItemParser {
         parser.parse()
     }
 
-    pub fn to_rich_text(lex: &mut Lexer<LineItem>) -> Option<(String, Attribute)> {
+    pub fn to_ruby(lex: &mut Lexer<LineItem>) -> Option<(String, String)> {
         let slice = lex.slice().to_string();
-        let (text, attr) = slice
+        slice
             .strip_prefix('{')?
             .strip_suffix('}')?
             .split_once('|')
-            .map(|(a, b)| (a.to_string(), b.to_string()))?;
-        Some((text, Attribute::Ruby(attr)))
+            .map(|(a, b)| (a.to_string(), b.to_string()))
     }
 }
