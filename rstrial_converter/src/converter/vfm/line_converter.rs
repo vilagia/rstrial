@@ -6,6 +6,10 @@ pub struct VfmLineConverter;
 
 impl LineConverter for VfmLineConverter {
     type ItemConverter = VfmLineItemConverter;
+
+    fn line_separator() -> String {
+        "\n\n".to_string()
+    }
 }
 #[cfg(test)]
 mod tests {
@@ -19,16 +23,15 @@ mod tests {
             rstrial_parser::tokens::LineItem::Text("我が輩は".to_string()),
             rstrial_parser::tokens::LineItem::Comma("、".to_string()),
             rstrial_parser::tokens::LineItem::Comment("猫である。".to_string()),
-            rstrial_parser::tokens::LineItem::RichText(
+            rstrial_parser::tokens::LineItem::TextWithRuby((
                 "名前".to_string(),
-                rstrial_parser::tokens::line_item::Attribute::Ruby("なまえ".to_string()),
-            ),
+                "なまえ".to_string(),
+            )),
             rstrial_parser::tokens::LineItem::Text("はまだ無い".to_string()),
             rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
-            rstrial_parser::tokens::LineItem::EndOfParagraph,
         ]);
         let result = VfmLineConverter::convert(line);
-        assert_eq!(result, "　我が輩は、{名前|なまえ}はまだ無い。\n");
+        assert_eq!(result, "　我が輩は、{名前|なまえ}はまだ無い。\n\n");
     }
 
     #[test]
@@ -37,15 +40,14 @@ mod tests {
             rstrial_parser::tokens::LineItem::Text("「我が輩は".to_string()),
             rstrial_parser::tokens::LineItem::Comma("、".to_string()),
             rstrial_parser::tokens::LineItem::Comment("猫である。".to_string()),
-            rstrial_parser::tokens::LineItem::RichText(
+            rstrial_parser::tokens::LineItem::TextWithRuby((
                 "名前".to_string(),
-                rstrial_parser::tokens::line_item::Attribute::Ruby("なまえ".to_string()),
-            ),
+                "なまえ".to_string(),
+            )),
             rstrial_parser::tokens::LineItem::Text("はまだ無い".to_string()),
             rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("」".to_string())),
-            rstrial_parser::tokens::LineItem::EndOfParagraph,
         ]);
         let result = VfmLineConverter::convert(line);
-        assert_eq!(result, " 「我が輩は、{名前|なまえ}はまだ無い」\n");
+        assert_eq!(result, " 「我が輩は、{名前|なまえ}はまだ無い」\n\n");
     }
 }

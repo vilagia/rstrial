@@ -10,18 +10,15 @@ impl LineItemConverter for AozoraLineItemConverter {
             LineItem::Text(text) => text,
             LineItem::Comma(comma) => comma,
             LineItem::Comment(_) => "".to_string(),
-            LineItem::RichText(text, attribute) => match attribute {
-                rstrial_parser::tokens::line_item::Attribute::Ruby(ruby) => {
-                    format!("|{text}《{ruby}》")
-                }
-            },
+            LineItem::TextWithRuby((text, ruby)) => format!("|{text}《{ruby}》"),
             LineItem::EndOfSentence(Terminator::Normal(terminator)) => terminator,
             LineItem::EndOfSentence(Terminator::Exclamation(terminator)) => {
                 format!("{}　", terminator)
             }
-            LineItem::EndOfParagraph => breakline,
             LineItem::EndOfSection(_) => breakline,
-            LineItem::EOF => breakline,
+            LineItem::TextWithSesame((text, character)) => {
+                format!("|{text}《{}》", character.to_string().repeat(text.len()))
+            }
         }
     }
 }
@@ -53,10 +50,7 @@ mod tests {
 
     #[test]
     fn test_convert_rich_text() {
-        let item = LineItem::RichText(
-            "text".to_string(),
-            rstrial_parser::tokens::line_item::Attribute::Ruby("ruby".to_string()),
-        );
+        let item = LineItem::TextWithRuby(("text".to_string(), "ruby".to_string()));
         let result = AozoraLineItemConverter::convert(item);
         assert_eq!(result, "|text《ruby》");
     }
@@ -69,13 +63,6 @@ mod tests {
     }
 
     #[test]
-    fn test_convert_end_of_paragraph() {
-        let item = LineItem::EndOfParagraph;
-        let result = AozoraLineItemConverter::convert(item);
-        assert_eq!(result, "\n");
-    }
-
-    #[test]
     fn test_convert_end_of_section() {
         let item = LineItem::EndOfSection("".to_string());
         let result = AozoraLineItemConverter::convert(item);
@@ -83,9 +70,9 @@ mod tests {
     }
 
     #[test]
-    fn test_convert_eof() {
-        let item = LineItem::EOF;
+    fn test_convert_text_with_sesame() {
+        let item = LineItem::TextWithSesame(("text".to_string(), '・'));
         let result = AozoraLineItemConverter::convert(item);
-        assert_eq!(result, "\n");
+        assert_eq!(result, "|text《・・・・》");
     }
 }
