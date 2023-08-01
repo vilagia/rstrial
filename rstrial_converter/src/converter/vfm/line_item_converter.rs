@@ -14,7 +14,9 @@ impl LineItemConverter for VfmLineItemConverter {
             LineItem::EndOfSentence(Terminator::Normal(terminator)) => terminator,
             LineItem::EndOfSentence(Terminator::Exclamation(terminator)) => terminator,
             LineItem::EndOfSection(_) => breakline,
-            LineItem::TextWithSesame((text, character)) => format!("{{{text}|{}}}", character.to_string().repeat(text.len())),
+            LineItem::TextWithSesame((text, character)) => {
+                format!("{{{text}|{}}}", character.to_string().repeat(text.len()))
+            }
         }
     }
 }
