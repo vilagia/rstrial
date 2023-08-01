@@ -14,6 +14,16 @@ impl LineItemParser {
         lex.slice().to_owned()
     }
 
+    pub fn to_comment_string(lex: &mut Lexer<LineItem>) -> String {
+        lex.slice()
+            .to_owned()
+            .strip_prefix("{#")
+            .unwrap()
+            .strip_suffix("}")
+            .unwrap()
+            .to_owned()
+    }
+
     pub fn to_terminator(lex: &mut Lexer<LineItem>) -> Terminator {
         let slice = lex.slice().to_string();
         let parser = TerminatorParser::new(slice.as_str());
