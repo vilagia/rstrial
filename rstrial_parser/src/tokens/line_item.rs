@@ -41,6 +41,8 @@ pub enum Terminator {
 mod tests {
     use logos::Logos;
 
+    use crate::tokens::line_item::{Attribute, Terminator};
+
     use super::LineItem;
 
     #[test]
@@ -50,17 +52,14 @@ mod tests {
             line,
             vec![
                 LineItem::Text("吾輩は".to_string()),
-                LineItem::RichText((
-                    "猫".to_string(),
-                    super::Attribute::Ruby("ねこ".to_string())
-                )),
+                LineItem::RichText(("猫".to_string(), Attribute::Ruby("ねこ".to_string()))),
                 LineItem::Text("である".to_string()),
                 LineItem::Comment("犬のほうがいいかも".to_string()),
-                LineItem::EndOfSentence(super::Terminator::Exclamation("???!?!?!?!！？。".to_string())),
+                LineItem::EndOfSentence(Terminator::Exclamation("???!?!?!?!！？。".to_string())),
                 LineItem::Text("名前はまだ無い".to_string()),
-                LineItem::EndOfSentence(super::Terminator::Normal("。".to_string())),
+                LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
                 LineItem::Text("どこで生まれたのかとんと見当がつかぬ".to_string()),
-                LineItem::EndOfSentence(super::Terminator::Normal("。".to_string())),
+                LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
             ]
         );
     }
