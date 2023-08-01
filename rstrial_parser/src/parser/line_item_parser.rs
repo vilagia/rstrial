@@ -19,7 +19,7 @@ impl LineItemParser {
             .to_owned()
             .strip_prefix("{#")
             .unwrap()
-            .strip_suffix("}")
+            .strip_suffix('}')
             .unwrap()
             .to_owned()
     }
