@@ -41,7 +41,7 @@ pub enum Terminator {
 mod tests {
     use logos::Logos;
 
-    use crate::tokens::line_item::{Attribute, Terminator};
+    use crate::tokens::line_item::Terminator;
 
     use super::LineItem;
 

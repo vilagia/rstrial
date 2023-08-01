@@ -1,9 +1,6 @@
 use logos::Lexer;
 
-use crate::tokens::{
-    line_item::{Attribute, Terminator},
-    LineItem,
-};
+use crate::tokens::{line_item::Terminator, LineItem};
 
 use super::terminator_parser::TerminatorParser;
 
