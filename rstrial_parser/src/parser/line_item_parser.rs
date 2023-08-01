@@ -35,4 +35,13 @@ impl LineItemParser {
             .split_once('|')
             .map(|(a, b)| (a.to_string(), b.to_string()))
     }
+
+    pub fn to_sesame(lex: &mut Lexer<LineItem>) -> Option<(String, char)> {
+        let slice = lex.slice().to_string();
+        slice
+            .strip_prefix('{')?
+            .strip_suffix('}')?
+            .split_once('|')
+            .map(|(a, _)| (a.to_string(), '・'.to_owned()))
+    }
 }

@@ -17,6 +17,9 @@ pub enum LineItem {
     // Text to be rendered with additional styles.
     #[regex(r"\{\w+\|\w+}", LineItemParser::to_ruby)]
     TextWithRuby((String, String)),
+    // Text to be rendered with additional styles.
+    #[regex(r"\{\w+\|\.}", LineItemParser::to_sesame)]
+    TextWithSesame((String, char)),
     // End of sentence. Includes a string shows the end of sentence(e.g. `.`, `。` or `！`).
     #[regex(r"[!?！？。」]+", callback = LineItemParser::to_terminator)]
     EndOfSentence(Terminator),
@@ -49,14 +52,16 @@ mod tests {
     fn parse() {
         let cases = vec![
             (
-                "吾輩は{猫|ねこ}である{#犬のほうがいいかも}???!?!?!?!！？名前はまだ無い。どこで生まれたのかとんと見当がつかぬ。",
+                "吾輩は{猫|ねこ}である{#犬のほうがいいかも}???!?!?!?!！？名前は{まだ|.}無い。どこで生まれたのかとんと見当がつかぬ。",
                 vec![
                 LineItem::Text("吾輩は".to_string()),
                 LineItem::TextWithRuby(("猫".to_string(), "ねこ".to_string())),
                 LineItem::Text("である".to_string()),
                 LineItem::Comment("犬のほうがいいかも".to_string()),
                 LineItem::EndOfSentence(Terminator::Exclamation("???!?!?!?!！？".to_string())),
-                LineItem::Text("名前はまだ無い".to_string()),
+                LineItem::Text("名前は".to_string()),
+                LineItem::TextWithSesame(("まだ".to_string(), '・')),
+                LineItem::Text("無い".to_string()),
                 LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
                 LineItem::Text("どこで生まれたのかとんと見当がつかぬ".to_string()),
                 LineItem::EndOfSentence(Terminator::Normal("。".to_string())),

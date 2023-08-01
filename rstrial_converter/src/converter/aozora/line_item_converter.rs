@@ -16,6 +16,7 @@ impl LineItemConverter for AozoraLineItemConverter {
                 format!("{}　", terminator)
             }
             LineItem::EndOfSection(_) => breakline,
+            LineItem::TextWithSesame((text, character)) => format!("|{text}《{}》", character.to_string().repeat(text.len())),
         }
     }
 }
@@ -64,5 +65,12 @@ mod tests {
         let item = LineItem::EndOfSection("".to_string());
         let result = AozoraLineItemConverter::convert(item);
         assert_eq!(result, "\n");
+    }
+
+    #[test]
+    fn test_convert_text_with_sesame() {
+        let item = LineItem::TextWithSesame(("text".to_string(), '・'));
+        let result = AozoraLineItemConverter::convert(item);
+        assert_eq!(result, "|text《・・・・》");
     }
 }
