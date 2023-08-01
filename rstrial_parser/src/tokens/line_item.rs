@@ -15,7 +15,7 @@ pub enum LineItem {
     #[regex(r"\{#\w+\}", LineItemParser::to_string)]
     Comment(String),
     // Text to be rendered with additional styles.
-    #[regex(r"\{\w+\|\w+\}", LineItemParser::to_rich_text)]
+    #[regex(r"\{.+|.+\}", LineItemParser::to_rich_text)]
     RichText((String, Attribute)),
     // End of sentence. Includes a string shows the end of sentence(e.g. `.`, `。` or `！`).
     #[regex(r"[!?！？。」]+", priority = 2, callback = LineItemParser::to_terminator)]
@@ -45,9 +45,23 @@ mod tests {
 
     #[test]
     fn parse() {
-        let mut lex = LineItem::lexer("吾輩は{猫|ねこ}である{#犬のほうがいいかも}???!?!?!?!！？。名前はまだ無い。\nどこで生まれたのかとんと見当がつかぬ。");
-        while let Some(Ok(token)) = lex.next() {
-            println!("{:?}", token);
-        }
+        let line = LineItem::lexer("吾輩は{猫|ねこ}である{#犬のほうがいいかも}???!?!?!?!！？。名前はまだ無い。どこで生まれたのかとんと見当がつかぬ。").map(|item| item.unwrap()).collect::<Vec<_>>();
+        assert_eq!(
+            line,
+            vec![
+                LineItem::Text("吾輩は".to_string()),
+                LineItem::RichText((
+                    "猫".to_string(),
+                    super::Attribute::Ruby("ねこ".to_string())
+                )),
+                LineItem::Text("である".to_string()),
+                LineItem::Comment("犬のほうがいいかも".to_string()),
+                LineItem::EndOfSentence(super::Terminator::Exclamation("???!?!?!?!！？。".to_string())),
+                LineItem::Text("名前はまだ無い".to_string()),
+                LineItem::EndOfSentence(super::Terminator::Normal("。".to_string())),
+                LineItem::Text("どこで生まれたのかとんと見当がつかぬ".to_string()),
+                LineItem::EndOfSentence(super::Terminator::Normal("。".to_string())),
+            ]
+        );
     }
 }
