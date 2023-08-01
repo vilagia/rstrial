@@ -10,11 +10,7 @@ impl LineItemConverter for VfmLineItemConverter {
             LineItem::Text(text) => text,
             LineItem::Comma(comma) => comma,
             LineItem::Comment(_) => "".to_string(),
-            LineItem::RichText((text, attribute)) => match attribute {
-                rstrial_parser::tokens::line_item::Attribute::Ruby(ruby) => {
-                    format!("{{{text}|{ruby}}}")
-                }
-            },
+            LineItem::TextWithRuby((text, ruby)) => format!("{{{text}|{ruby}}}"),
             LineItem::EndOfSentence(Terminator::Normal(terminator)) => terminator,
             LineItem::EndOfSentence(Terminator::Exclamation(terminator)) => terminator,
             LineItem::EndOfSection(_) => breakline,
@@ -49,10 +45,7 @@ mod tests {
 
     #[test]
     fn test_convert_rich_text() {
-        let item = LineItem::RichText((
-            "text".to_string(),
-            rstrial_parser::tokens::line_item::Attribute::Ruby("ruby".to_string()),
-        ));
+        let item = LineItem::TextWithRuby(("text".to_string(), "ruby".to_string()));
         let result = VfmLineItemConverter::convert(item);
         assert_eq!(result, "{text|ruby}");
     }

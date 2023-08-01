@@ -15,8 +15,8 @@ pub enum LineItem {
     #[regex(r"\{#\w+\}", LineItemParser::to_comment_string)]
     Comment(String),
     // Text to be rendered with additional styles.
-    #[regex(r"\{\w+\|\w+}", LineItemParser::to_rich_text)]
-    RichText((String, Attribute)),
+    #[regex(r"\{\w+\|\w+}", LineItemParser::to_ruby)]
+    TextWithRuby((String, String)),
     // End of sentence. Includes a string shows the end of sentence(e.g. `.`, `。` or `！`).
     #[regex(r"[!?！？。」]+", callback = LineItemParser::to_terminator)]
     EndOfSentence(Terminator),
@@ -52,7 +52,7 @@ mod tests {
                 "吾輩は{猫|ねこ}である{#犬のほうがいいかも}???!?!?!?!！？名前はまだ無い。どこで生まれたのかとんと見当がつかぬ。",
                 vec![
                 LineItem::Text("吾輩は".to_string()),
-                LineItem::RichText(("猫".to_string(), Attribute::Ruby("ねこ".to_string()))),
+                LineItem::TextWithRuby(("猫".to_string(), "ねこ".to_string())),
                 LineItem::Text("である".to_string()),
                 LineItem::Comment("犬のほうがいいかも".to_string()),
                 LineItem::EndOfSentence(Terminator::Exclamation("???!?!?!?!！？".to_string())),
