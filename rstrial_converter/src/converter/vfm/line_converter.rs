@@ -6,6 +6,10 @@ pub struct VfmLineConverter;
 
 impl LineConverter for VfmLineConverter {
     type ItemConverter = VfmLineItemConverter;
+
+    fn line_separator() -> String {
+        "\n\n".to_string()
+    }
 }
 #[cfg(test)]
 mod tests {
@@ -27,7 +31,7 @@ mod tests {
             rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
         ]);
         let result = VfmLineConverter::convert(line);
-        assert_eq!(result, "　我が輩は、{名前|なまえ}はまだ無い。");
+        assert_eq!(result, "　我が輩は、{名前|なまえ}はまだ無い。\n\n");
     }
 
     #[test]
@@ -44,6 +48,6 @@ mod tests {
             rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("」".to_string())),
         ]);
         let result = VfmLineConverter::convert(line);
-        assert_eq!(result, " 「我が輩は、{名前|なまえ}はまだ無い」");
+        assert_eq!(result, " 「我が輩は、{名前|なまえ}はまだ無い」\n\n");
     }
 }

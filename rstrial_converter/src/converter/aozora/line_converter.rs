@@ -28,7 +28,7 @@ mod tests {
             rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
         ]);
         let result = AozoraLineConverter::convert(line);
-        assert_eq!(result, "　我が輩は、|名前《なまえ》はまだ無い。");
+        assert_eq!(result, "　我が輩は、|名前《なまえ》はまだ無い。\n");
     }
 
     #[test]
@@ -45,6 +45,6 @@ mod tests {
             rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("」".to_string())),
         ]);
         let result = AozoraLineConverter::convert(line);
-        assert_eq!(result, " 「我が輩は、|名前《なまえ》はまだ無い」");
+        assert_eq!(result, " 「我が輩は、|名前《なまえ》はまだ無い」\n");
     }
 }
