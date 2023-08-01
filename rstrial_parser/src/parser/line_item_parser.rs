@@ -1,6 +1,9 @@
 use logos::Lexer;
 
-use crate::tokens::{LineItem, line_item::{Terminator, Attribute}};
+use crate::tokens::{
+    line_item::{Attribute, Terminator},
+    LineItem,
+};
 
 use super::terminator_parser::TerminatorParser;
 
@@ -10,13 +13,13 @@ impl LineItemParser {
     pub fn to_string(lex: &mut Lexer<LineItem>) -> String {
         lex.slice().to_owned()
     }
-    
+
     pub fn to_terminator(lex: &mut Lexer<LineItem>) -> Terminator {
         let slice = lex.slice().to_string();
         let parser = TerminatorParser::new(slice.as_str());
         parser.parse()
     }
-    
+
     pub fn to_rich_text(lex: &mut Lexer<LineItem>) -> Option<(String, Attribute)> {
         let slice = lex.slice().to_string();
         let (text, attr) = slice
