@@ -1,11 +1,9 @@
-use std::str::{Chars, Lines};
-
-use logos::Logos;
+use std::str::Chars;
 
 use crate::{
     tokens::{
         section::{Document, Section},
-        Line, LineItem,
+        Line,
     },
     SectionParser,
 };
@@ -47,7 +45,7 @@ impl<'a> Iterator for ManuscriptParser<'a> {
             // println!("{:?}", self.text_buffer);
             match self.state {
                 State::Line => match &self.text_buffer {
-                    buffer if buffer.starts_with("```") && buffer.ends_with("\n") => {
+                    buffer if buffer.starts_with("```") && buffer.ends_with('\n') => {
                         self.state = State::MultiLine;
                         let scene_title = buffer
                             .strip_prefix("```")
@@ -62,13 +60,13 @@ impl<'a> Iterator for ManuscriptParser<'a> {
                         self.text_buffer.clear();
                         self.next()
                     }
-                    buffer if buffer.starts_with('@') && buffer.ends_with("\n") => {
+                    buffer if buffer.starts_with('@') && buffer.ends_with('\n') => {
                         let tag = buffer.strip_prefix('@').unwrap().to_string();
                         self.tags_buffer.push(tag.trim().to_string());
                         self.text_buffer.clear();
                         self.next()
                     }
-                    buffer if buffer.ends_with("\n") => {
+                    buffer if buffer.ends_with('\n') => {
                         self.text_buffer.clear();
                         self.next()
                     }
@@ -100,7 +98,6 @@ impl<'a> Iterator for ManuscriptParser<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::tokens::line_item::Terminator;
 
     use super::*;
 
