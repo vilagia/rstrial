@@ -45,6 +45,11 @@ impl<'a> Iterator for ManuscriptParser<'a> {
             // println!("{:?}", self.text_buffer);
             match self.state {
                 State::Line => match &self.text_buffer {
+                    buffer if buffer.starts_with("#") && buffer.ends_with('\n') => {
+                        let title = buffer.strip_prefix("# ").unwrap().trim().to_string();
+                        self.text_buffer.clear();
+                        Some(Section::Title(title))
+                    }
                     buffer if buffer.starts_with("```") && buffer.ends_with('\n') => {
                         self.state = State::MultiLine;
                         let scene_title = buffer
@@ -99,14 +104,52 @@ impl<'a> Iterator for ManuscriptParser<'a> {
 #[cfg(test)]
 mod tests {
 
+    use crate::tokens::{LineItem, line_item::Terminator};
+
     use super::*;
 
     #[test]
     fn test_parse() {
-        let manuscript = "# タイトル\n以下、本文\n@猫\n@夏目漱石\n```第一シーン\n吾輩は猫である。名前はまだ無い。\nどこで生まれたのかとんと{見当|けんとう}が付かぬ。\n```\n以上本文\n```第二シーン\nにゃあにゃあにゃあ。\n```\n";
-        let manuscript = ManuscriptParser::new(manuscript);
-        for section in manuscript {
-            println!("{:?}", section);
+        let cases = vec![
+            (
+                 "# タイトル\n以下、本文\n@猫\n@夏目漱石\n```第一シーン\n吾輩は{猫|ねこ}である。名前は{まだ|.}無い。\nどこで生まれたのかとんと見当が付かぬ。\n```\n以上本文\n```第二シーン\nにゃあにゃあにゃあ。\n```\n",
+                    vec![
+                        Section::Title("タイトル".to_string()),
+                        Section::Scene(
+                            Document::new("第一シーン".to_string(), None, vec!["猫".to_string(), "夏目漱石".to_string()]),
+                            vec![
+                                Line::Paragraph(vec![
+                                    LineItem::Text("吾輩は".to_string()),
+                                    LineItem::TextWithRuby(("猫".to_string(), "ねこ".to_string())),
+                                    LineItem::Text("である".to_string()),
+                                    LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
+                                    LineItem::Text("名前は".to_string()),
+                                    LineItem::TextWithSesame(("まだ".to_string(), '・')),
+                                    LineItem::Text("無い".to_string()),
+                                    LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
+                                ]),
+                                Line::Paragraph(vec![
+                                    LineItem::Text("どこで生まれたのかとんと見当が付かぬ".to_string()),
+                                    LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
+                                ]),
+                            ],
+                        ),
+                        Section::Scene(
+                            Document::new("第二シーン".to_string(), None, vec![]),
+                            vec![
+                                Line::Paragraph(vec![
+                                    LineItem::Text("にゃあにゃあにゃあ".to_string()),
+                                    LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
+                                ]),
+                            ],
+                        ),
+                    ],
+        )];
+
+        for (input, expected) in cases {
+            let manuscript_parser = ManuscriptParser::new(input);
+            let actual = manuscript_parser.collect::<Vec<Section>>();
+            assert_eq!(actual, expected);
         }
     }
 }
