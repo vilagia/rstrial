@@ -1,5 +1,3 @@
-use logos::Logos;
-
 use super::Line;
 
 type Body = Vec<Line>;
