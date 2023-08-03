@@ -1,10 +1,8 @@
 use std::str::Chars;
 
-use crate::{
-    tokens::{
-        section::{Document, Section},
-        Line,
-    },
+use crate::tokens::{
+    section::{Document, Section},
+    Line,
 };
 
 use super::section_parser::SectionParser;
@@ -105,7 +103,7 @@ impl<'a> Iterator for ManuscriptParser<'a> {
 #[cfg(test)]
 mod tests {
 
-    use crate::tokens::{LineItem, line_item::Terminator};
+    use crate::tokens::{line_item::Terminator, LineItem};
 
     use super::*;
 

@@ -1,4 +1,4 @@
-use rstrial_parser::tokens::{Line, LineItem, section::Section};
+use rstrial_parser::tokens::{section::Section, Line, LineItem};
 
 pub mod aozora;
 pub mod vfm;
@@ -51,16 +51,15 @@ pub trait LineConverter {
 
 pub trait SectionConverter {
     type ItemConverter: LineConverter;
-    
+
     fn convert(section: Section) -> String {
         match section {
             Section::Title(_) => "".to_string(),
-            Section::Scene(_, body) => {
-                body.into_iter()
-                    .map(Self::ItemConverter::convert)
-                    .collect::<Vec<String>>()
-                    .concat()
-            },
+            Section::Scene(_, body) => body
+                .into_iter()
+                .map(Self::ItemConverter::convert)
+                .collect::<Vec<String>>()
+                .concat(),
         }
     }
 }
