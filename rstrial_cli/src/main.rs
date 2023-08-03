@@ -1,22 +1,27 @@
 use std::fs;
 
-use clap::{Parser, ValueEnum};
+use clap::{Parser, ValueEnum, Subcommand};
 use rstrial_converter::converter::{
     aozora::manuscript_converter::AozoraManuscriptConverter,
     vfm::manuscript_converter::VfmManuscriptConverter, ManuscriptConverter, SectionConverter,
 };
 
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
+/// サブコマンドの定義
+
+#[derive(Debug, Subcommand)]
+enum Commands {
+ Convert(ConvertArgs),
+}
+
+#[derive(Debug, clap::Args)]
+struct ConvertArgs {
     /// Target file path
-    #[arg(short, long)]
     target: std::path::PathBuf,
 
-    #[arg(short, long)]
     /// Output format
     /// vfm: Vivliostyle Flavored Markdown
     /// aozora: Aozora Bunko format
+    #[arg(short, long)]
     format: OutputFormat,
 
     /// Output file path
@@ -29,6 +34,14 @@ struct Args {
     /// default: txt
     #[arg(short, long)]
     ext: Option<String>,
+}
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+
+    #[clap(subcommand)]
+    command: Commands,
 }
 
 #[derive(Debug, Clone)]
@@ -53,12 +66,16 @@ impl ValueEnum for OutputFormat {
 fn main() {
     let args = Args::parse();
 
-    let manuscripts: Vec<String> = extract_manuscripts(&args);
-    let manuscripts = convert_manuscripts(&args, manuscripts);
-    output(&args, manuscripts);
+    match args.command {
+        Commands::Convert(args) => {
+            let manuscripts: Vec<String> = extract_manuscripts(&args);
+            let manuscripts = convert_manuscripts(&args, manuscripts);
+            output(&args, manuscripts);       
+        },
+    }
 }
 
-fn extract_manuscripts(args: &Args) -> Vec<String> {
+fn extract_manuscripts(args: &ConvertArgs) -> Vec<String> {
     match args.target.is_dir() {
         true => {
             let mut manuscripts = vec![];
@@ -81,7 +98,7 @@ fn extract_manuscripts(args: &Args) -> Vec<String> {
     }
 }
 
-fn convert_manuscripts(args: &Args, manuscripts: Vec<String>) -> Vec<String> {
+fn convert_manuscripts(args: &ConvertArgs, manuscripts: Vec<String>) -> Vec<String> {
     manuscripts
         .iter()
         .map(|manuscript| {
@@ -96,7 +113,7 @@ fn convert_manuscripts(args: &Args, manuscripts: Vec<String>) -> Vec<String> {
         .collect::<Vec<String>>()
 }
 
-fn output(args: &Args, manuscripts: Vec<String>) {
+fn output(args: &ConvertArgs, manuscripts: Vec<String>) {
     match &args.output {
         Some(path) => match path.is_dir() {
             true => {
