@@ -53,25 +53,7 @@ impl ValueEnum for OutputFormat {
 fn main() {
     let args = Args::parse();
 
-    let manuscripts: Vec<String> = match args.target.is_dir() {
-        true => {
-            let mut manuscripts = vec![];
-            for entry in fs::read_dir(args.target.clone()).expect("Should have been able to read the dir")
-            {
-                let entry = entry.expect("Should have been able to read the entry");
-                let path = entry.path();
-                let content =
-                    fs::read_to_string(path).expect("Should have been able to read the file");
-                manuscripts.push(content);
-            }
-            manuscripts
-        },
-        false => {
-            let content =
-                fs::read_to_string(args.target.clone()).expect("Should have been able to read the file");
-            vec![content]
-        },
-    };
+    let manuscripts: Vec<String> = extract_manuscript(&args);
     let manuscripts = manuscripts
         .iter()
         .map(|manuscript| {
@@ -90,6 +72,28 @@ fn main() {
         .collect::<Vec<String>>();
 
         output(&args, manuscripts);
+}
+
+fn extract_manuscript (args: &Args) -> Vec<String> {
+    match args.target.is_dir() {
+        true => {
+            let mut manuscripts = vec![];
+            for entry in fs::read_dir(args.target.clone()).expect("Should have been able to read the dir")
+            {
+                let entry = entry.expect("Should have been able to read the entry");
+                let path = entry.path();
+                let content =
+                    fs::read_to_string(path).expect("Should have been able to read the file");
+                manuscripts.push(content);
+            }
+            manuscripts
+        },
+        false => {
+            let content =
+                fs::read_to_string(args.target.clone()).expect("Should have been able to read the file");
+            vec![content]
+        },
+    }
 }
 
 fn output(args: &Args, manuscripts: Vec<String>) {
