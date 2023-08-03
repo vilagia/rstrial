@@ -2,11 +2,8 @@ use std::fs;
 
 use clap::{Parser, ValueEnum};
 use rstrial_converter::converter::{
-    aozora::{
-        manuscript_converter::AozoraManuscriptConverter, section_converter::AozoraSectionConverter,
-    },
-    vfm::manuscript_converter::VfmManuscriptConverter,
-    ManuscriptConverter, SectionConverter,
+    aozora::manuscript_converter::AozoraManuscriptConverter,
+    vfm::manuscript_converter::VfmManuscriptConverter, ManuscriptConverter, SectionConverter,
 };
 
 #[derive(Parser, Debug)]

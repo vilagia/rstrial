@@ -44,7 +44,7 @@ impl<'a> Iterator for ManuscriptParser<'a> {
             // println!("{:?}", self.text_buffer);
             match self.state {
                 State::Line => match &self.text_buffer {
-                    buffer if buffer.starts_with("#") && buffer.ends_with('\n') => {
+                    buffer if buffer.starts_with('#') && buffer.ends_with('\n') => {
                         let title = buffer.strip_prefix("# ").unwrap().trim().to_string();
                         self.text_buffer.clear();
                         Some(Section::Title(title))
