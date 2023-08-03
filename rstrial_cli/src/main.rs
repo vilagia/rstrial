@@ -56,7 +56,7 @@ fn main() {
     let manuscripts: Vec<String> = match args.target.is_dir() {
         true => {
             let mut manuscripts = vec![];
-            for entry in fs::read_dir(args.target).expect("Should have been able to read the dir")
+            for entry in fs::read_dir(args.target.clone()).expect("Should have been able to read the dir")
             {
                 let entry = entry.expect("Should have been able to read the entry");
                 let path = entry.path();
@@ -68,7 +68,7 @@ fn main() {
         },
         false => {
             let content =
-                fs::read_to_string(args.target).expect("Should have been able to read the file");
+                fs::read_to_string(args.target.clone()).expect("Should have been able to read the file");
             vec![content]
         },
     };
@@ -89,26 +89,30 @@ fn main() {
         })
         .collect::<Vec<String>>();
 
-        match args.output {
-            Some(path) => {
-                match path.is_dir() {
-                    true => {
-                        let ext = args.ext.clone().unwrap_or("txt".to_string());
-                        for (i, manuscript) in manuscripts.iter().enumerate() {
-                            let file_name = format!("{}.{}", i, ext);
-                            let path = path.join(file_name);
-                            fs::write(path, manuscript).expect("Unable to write file");
-                        }
-                    }
-                    false => {
-                        fs::write(path, manuscripts.join("\n")).expect("Unable to write file");
+        output(&args, manuscripts);
+}
+
+fn output(args: &Args, manuscripts: Vec<String>) {
+    match &args.output {
+        Some(path) => {
+            match path.is_dir() {
+                true => {
+                    let ext = args.ext.clone().unwrap_or("txt".to_string());
+                    for (i, manuscript) in manuscripts.iter().enumerate() {
+                        let file_name = format!("{}.{}", i, ext);
+                        let path = path.join(file_name);
+                        fs::write(path, manuscript).expect("Unable to write file");
                     }
                 }
-            }
-            None => {
-                for manuscript in manuscripts {
-                    println!("{}\n\n----\n\n", manuscript);
+                false => {
+                    fs::write(path, manuscripts.join("\n")).expect("Unable to write file");
                 }
             }
         }
+        None => {
+            for manuscript in manuscripts {
+                println!("{}\n\n----\n\n", manuscript);
+            }
+        }
+    }
 }
