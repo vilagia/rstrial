@@ -85,13 +85,13 @@ fn convert_manuscripts(args: &Args, manuscripts: Vec<String>) -> Vec<String> {
     manuscripts
         .iter()
         .map(|manuscript| {
-            let parser = rstrial_parser::ManuscriptParser::new(&manuscript);
+            let parser = rstrial_parser::ManuscriptParser::new(manuscript);
             let tokens = parser.collect();
-            let text = match args.format {
+
+            match args.format {
                 OutputFormat::Vfm => VfmManuscriptConverter::convert(tokens),
                 OutputFormat::Aozora => AozoraManuscriptConverter::convert(tokens),
-            };
-            text
+            }
         })
         .collect::<Vec<String>>()
 }
