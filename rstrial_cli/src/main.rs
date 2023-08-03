@@ -54,6 +54,7 @@ fn main() {
             fs::read_to_string(args.target).expect("Should have been able to read the file");
         let parser = rstrial_parser::ManuscriptParser::new(&contents);
         let tokens = parser.collect();
+        println!("{:?}", tokens);
         match args.format {
             OutputFormat::Vfm => {
                 let text: String = VfmManuscriptConverter::convert(tokens);

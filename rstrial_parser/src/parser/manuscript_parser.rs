@@ -41,6 +41,7 @@ impl<'a> Iterator for ManuscriptParser<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(character) = self.chars.next() {
             self.text_buffer.push(character);
+            println!("{:?}: {:?}", self.state, self.text_buffer);
             // println!("{:?}", self.text_buffer);
             match self.state {
                 State::Line => match &self.text_buffer {
@@ -66,7 +67,10 @@ impl<'a> Iterator for ManuscriptParser<'a> {
                     }
                     buffer if buffer.starts_with("@tags") && buffer.ends_with('\n') => {
                         let tags = buffer.strip_prefix("@tags").unwrap().trim().to_string();
-                        let mut tags = tags.split('/').map(|tag| tag.to_string()).collect::<Vec<String>>();
+                        let mut tags = tags
+                            .split('/')
+                            .map(|tag| tag.to_string())
+                            .collect::<Vec<String>>();
                         self.tags_buffer.append(&mut tags);
                         self.text_buffer.clear();
                         self.next()
