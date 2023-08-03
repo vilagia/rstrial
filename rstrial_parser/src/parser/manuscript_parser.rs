@@ -64,9 +64,10 @@ impl<'a> Iterator for ManuscriptParser<'a> {
                         self.text_buffer.clear();
                         self.next()
                     }
-                    buffer if buffer.starts_with('@') && buffer.ends_with('\n') => {
-                        let tag = buffer.strip_prefix('@').unwrap().to_string();
-                        self.tags_buffer.push(tag.trim().to_string());
+                    buffer if buffer.starts_with("@tags") && buffer.ends_with('\n') => {
+                        let tags = buffer.strip_prefix("@tags").unwrap().trim().to_string();
+                        let mut tags = tags.split('/').map(|tag| tag.to_string()).collect::<Vec<String>>();
+                        self.tags_buffer.append(&mut tags);
                         self.text_buffer.clear();
                         self.next()
                     }
@@ -111,7 +112,7 @@ mod tests {
     fn test_parse() {
         let cases = vec![
             (
-                 "# タイトル\n以下、本文\n@猫\n@夏目漱石\n```第一シーン\n吾輩は{猫|ねこ}である。名前は{まだ|.}無い。\nどこで生まれたのかとんと見当が付かぬ。\n```\n以上本文\n```第二シーン\nにゃあにゃあにゃあ。\n```\n",
+                 "# タイトル\n以下、本文\n@tags 猫/夏目漱石\n```第一シーン\n吾輩は{猫|ねこ}である。名前は{まだ|.}無い。\nどこで生まれたのかとんと見当が付かぬ。\n```\n以上本文\n```第二シーン\nにゃあにゃあにゃあ。\n```\n",
                     vec![
                         Section::Title("タイトル".to_string()),
                         Section::Scene(
