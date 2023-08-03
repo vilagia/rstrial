@@ -2,7 +2,7 @@ use std::fs;
 
 use clap::{Parser, ValueEnum};
 use rstrial_converter::converter::{
-    aozora::section_converter::AozoraSectionConverter, SectionConverter,
+    aozora::{section_converter::AozoraSectionConverter, manuscript_converter::AozoraManuscriptConverter}, SectionConverter, vfm::manuscript_converter::VfmManuscriptConverter, ManuscriptConverter,
 };
 
 #[derive(Parser, Debug)]
@@ -51,15 +51,15 @@ fn main() {
         println!("{} is file", args.target.display());
         let contents =
             fs::read_to_string(args.target).expect("Should have been able to read the file");
-        let parser = rstrial_parser::SectionParser::new(&contents);
+        let parser = rstrial_parser::ManuscriptConverter::new(&contents);
         let tokens = parser.collect::<Vec<rstrial_parser::tokens::Line>>();
         match args.format {
             OutputFormat::Vfm => {
-                let text: String = AozoraSectionConverter::convert(tokens);
+                let text: String = VfmManuscriptConverter::convert(tokens);
                 println!("{}", text)
             }
             OutputFormat::Aozora => {
-                let text: String = AozoraSectionConverter::convert(tokens);
+                let text: String = AozoraManuscriptConverter::convert(tokens);
                 println!("{}", text)
             }
         }
