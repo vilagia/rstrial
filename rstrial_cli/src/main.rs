@@ -23,6 +23,12 @@ struct Args {
     /// If not specified, output to stdout
     #[arg(short, long)]
     output: Option<std::path::PathBuf>,
+
+    /// Output file extention
+    /// If Output file path is not directory, this option is ignored
+    /// default: txt
+    #[arg(short, long)]
+    ext: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -46,30 +52,63 @@ impl ValueEnum for OutputFormat {
 
 fn main() {
     let args = Args::parse();
-    if args.target.is_dir() {
-        println!("{} is directory", args.target.display());
-    } else {
-        println!("{} is file", args.target.display());
-        let contents =
-            fs::read_to_string(args.target).expect("Should have been able to read the file");
-        let parser = rstrial_parser::ManuscriptParser::new(&contents);
-        let tokens = parser.collect();
-        println!("{:?}", tokens);
-        let text = match args.format {
-            OutputFormat::Vfm => {
-                VfmManuscriptConverter::convert(tokens)
+
+    let manuscripts: Vec<String> = match args.target.is_dir() {
+        true => {
+            let mut manuscripts = vec![];
+            for entry in fs::read_dir(args.target).expect("Should have been able to read the dir")
+            {
+                let entry = entry.expect("Should have been able to read the entry");
+                let path = entry.path();
+                let content =
+                    fs::read_to_string(path).expect("Should have been able to read the file");
+                manuscripts.push(content);
             }
-            OutputFormat::Aozora => {
-                AozoraManuscriptConverter::convert(tokens)
-            }
-        };
+            manuscripts
+        },
+        false => {
+            let content =
+                fs::read_to_string(args.target).expect("Should have been able to read the file");
+            vec![content]
+        },
+    };
+    let manuscripts = manuscripts
+        .iter()
+        .map(|manuscript| {
+            let parser = rstrial_parser::ManuscriptParser::new(&manuscript);
+            let tokens = parser.collect();
+            let text = match args.format {
+                OutputFormat::Vfm => {
+                    VfmManuscriptConverter::convert(tokens)
+                }
+                OutputFormat::Aozora => {
+                    AozoraManuscriptConverter::convert(tokens)
+                }
+            };
+            text
+        })
+        .collect::<Vec<String>>();
+
         match args.output {
             Some(path) => {
-                fs::write(path, text).expect("Unable to write file");
+                match path.is_dir() {
+                    true => {
+                        let ext = args.ext.clone().unwrap_or("txt".to_string());
+                        for (i, manuscript) in manuscripts.iter().enumerate() {
+                            let file_name = format!("{}.{}", i, ext);
+                            let path = path.join(file_name);
+                            fs::write(path, manuscript).expect("Unable to write file");
+                        }
+                    }
+                    false => {
+                        fs::write(path, manuscripts.join("\n")).expect("Unable to write file");
+                    }
+                }
             }
             None => {
-                println!("{}", text);
+                for manuscript in manuscripts {
+                    println!("{}\n\n----\n\n", manuscript);
+                }
             }
         }
-    }
 }
