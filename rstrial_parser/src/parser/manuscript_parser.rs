@@ -5,8 +5,9 @@ use crate::{
         section::{Document, Section},
         Line,
     },
-    SectionParser,
 };
+
+use super::section_parser::SectionParser;
 
 pub struct ManuscriptParser<'a> {
     pub source: Box<String>,
