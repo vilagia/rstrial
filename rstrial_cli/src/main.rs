@@ -55,14 +55,20 @@ fn main() {
         let parser = rstrial_parser::ManuscriptParser::new(&contents);
         let tokens = parser.collect();
         println!("{:?}", tokens);
-        match args.format {
+        let text = match args.format {
             OutputFormat::Vfm => {
-                let text: String = VfmManuscriptConverter::convert(tokens);
-                println!("{}", text)
+                VfmManuscriptConverter::convert(tokens)
             }
             OutputFormat::Aozora => {
-                let text: String = AozoraManuscriptConverter::convert(tokens);
-                println!("{}", text)
+                AozoraManuscriptConverter::convert(tokens)
+            }
+        };
+        match args.output {
+            Some(path) => {
+                fs::write(path, text).expect("Unable to write file");
+            }
+            None => {
+                println!("{}", text);
             }
         }
     }
