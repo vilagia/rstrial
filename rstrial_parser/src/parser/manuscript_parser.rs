@@ -1,4 +1,4 @@
-use log::{info, trace};
+use log::trace;
 use std::str::Lines;
 
 use crate::tokens::{

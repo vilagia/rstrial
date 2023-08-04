@@ -75,7 +75,7 @@ mod tests {
             )
         ];
         for (input, expected) in cases {
-            let mut lexer = LineItem::lexer(input);
+            let lexer = LineItem::lexer(input);
             let mut actual = vec![];
             for token in lexer {
                 actual.push(token.unwrap());

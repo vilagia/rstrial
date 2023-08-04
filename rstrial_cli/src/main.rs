@@ -1,5 +1,5 @@
 use log::{info, warn};
-use progress;
+
 use std::fs;
 
 use clap::{Parser, Subcommand, ValueEnum};
