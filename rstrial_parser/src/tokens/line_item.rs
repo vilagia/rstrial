@@ -15,7 +15,7 @@ pub enum LineItem {
     #[regex(r"\{#\w+\}", LineItemParser::to_comment_string)]
     Comment(String),
     // Text to be rendered with additional styles.
-    #[regex(r"\{\w+\|\w+}", LineItemParser::to_ruby)]
+    #[regex(r"\{\w+\|[\w・]+}", LineItemParser::to_ruby)]
     TextWithRuby((String, String)),
     // Text to be rendered with additional styles.
     #[regex(r"\{\w+\|\.}", LineItemParser::to_sesame)]

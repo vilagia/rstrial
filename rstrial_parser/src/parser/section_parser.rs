@@ -29,6 +29,7 @@ impl<'a> Iterator for SectionParser<'a> {
                     line_str.strip_prefix("//").unwrap().to_string(),
                 ))
             } else if line_str.starts_with('「') {
+                println!("conversation: {:?}", line_str);
                 let items: Vec<LineItem> = line_parser
                     .map(|item| item.unwrap())
                     .collect::<Vec<LineItem>>();

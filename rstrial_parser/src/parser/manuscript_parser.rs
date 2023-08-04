@@ -1,5 +1,5 @@
 use log::{info, trace};
-use std::str::Chars;
+use std::str::Lines;
 
 use crate::tokens::{
     section::{Document, Section},
@@ -12,9 +12,9 @@ use super::section_parser::SectionParser;
 pub struct ManuscriptParser<'a> {
     pub source: Box<String>,
     scene: Option<Section>,
-    chars: Box<Chars<'a>>,
+    lines: Box<Lines<'a>>,
     state: State,
-    text_buffer: String,
+    text_buffer: Vec<String>,
     tags_buffer: Vec<String>,
 }
 
@@ -29,8 +29,8 @@ impl<'a> ManuscriptParser<'a> {
         Self {
             source: Box::new(section.to_string()),
             state: State::Line,
-            chars: Box::new(section.chars()),
-            text_buffer: "".to_string(),
+            lines: Box::new(section.lines()),
+            text_buffer: vec![],
             tags_buffer: vec![],
             scene: None,
         }
@@ -41,71 +41,57 @@ impl<'a> Iterator for ManuscriptParser<'a> {
     type Item = Section;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let token = if let Some(character) = self.chars.next() {
-            trace!("manuscript: {:?}, character: {:?}", self, character);
-            self.text_buffer.push(character);
-            match self.state {
-                State::Line => match &self.text_buffer {
-                    buffer if buffer.starts_with('#') && buffer.ends_with('\n') => {
-                        let title = buffer.strip_prefix("# ").unwrap().trim().to_string();
-                        self.text_buffer.clear();
-                        info!("title: {}", title);
+        let token = if let Some(line) = self.lines.next() {
+            println!("state: {:?}", self.state);
+            trace!("manuscript: {:?}, character: {:?}", self, line);
+            match &self.state {
+                State::Line => match line {
+                    line if line.starts_with("# ") => {
+                        let title = line.strip_prefix("# ").unwrap().to_string();
                         Some(Section::Title(title))
                     }
-                    buffer if buffer.starts_with("```") && buffer.ends_with('\n') => {
+                    line if line.starts_with("```") => {
                         self.state = State::MultiLine;
-                        let scene_title = buffer
-                            .strip_prefix("```")
-                            .unwrap()
-                            .strip_suffix('\n')
-                            .unwrap()
-                            .to_string();
-                        info!("scene title: {}", scene_title);
+                        let title = line.strip_prefix("```").unwrap().to_string();
                         self.scene = Some(Section::Scene(
-                            Document::new(scene_title, None, vec![]),
+                            Document::new(title, None, self.tags_buffer.clone()),
                             vec![],
                         ));
-                        self.text_buffer.clear();
+                        self.tags_buffer.clear();
                         self.next()
                     }
-                    buffer if buffer.starts_with("@tags") && buffer.ends_with('\n') => {
-                        let tags = buffer.strip_prefix("@tags").unwrap().trim().to_string();
-                        let mut tags = tags
+                    line if line.starts_with("@tags") => {
+                        let tags = line
+                            .strip_prefix("@tags ")?
                             .split('/')
                             .map(|tag| tag.to_string())
                             .collect::<Vec<String>>();
-                        info!("tags: {:?}", tags);
-                        self.tags_buffer.append(&mut tags);
-                        self.text_buffer.clear();
-                        self.next()
-                    }
-                    buffer if buffer.ends_with('\n') => {
-                        self.text_buffer.clear();
+                        self.tags_buffer.extend(tags);
                         self.next()
                     }
                     _ => self.next(),
                 },
-                State::MultiLine => match &self.text_buffer {
-                    buffer if buffer.ends_with("```\n") => {
-                        self.state = State::Line;
-                        let scene_body = buffer.strip_suffix("```\n").unwrap().to_string();
-                        let section_parser = SectionParser::new(scene_body.as_str());
-                        let body: Vec<Line> = section_parser.collect::<Vec<Line>>();
-                        info!("scene body: {:?}", body);
+                State::MultiLine => match line {
+                    line if line.starts_with("```") => {
+                        let body = self.text_buffer.join("\n");
                         self.text_buffer.clear();
-                        if let Some(Section::Scene(mut document, _)) = self.scene.clone() {
-                            document.tags = self.tags_buffer.clone();
-                            self.tags_buffer.clear();
-                            Some(Section::Scene(document, body))
+                        let parser = SectionParser::new(body.as_str());
+                        let body: Vec<Line> = parser.collect::<Vec<Line>>();
+                        self.state = State::Line;
+                        if let Some(Section::Scene(document, _)) = &self.scene {
+                            Some(Section::Scene(document.clone(), body))
                         } else {
                             None
                         }
                     }
-                    _ => self.next(),
+                    _ => {
+                        println!("line: {:?}", line);
+                        self.text_buffer.push(line.to_string());
+                        self.next()
+                    }
                 },
             }
         } else {
-            info!("parsiing finished.");
             None
         };
         trace!("parse: {:?}", token);
