@@ -1,5 +1,5 @@
-use std::str::Chars;
 use log::{info, trace, warn};
+use std::str::Chars;
 
 use crate::tokens::{
     section::{Document, Section},
@@ -40,8 +40,7 @@ impl<'a> ManuscriptParser<'a> {
 impl<'a> Iterator for ManuscriptParser<'a> {
     type Item = Section;
 
-    fn next(&mut self) -> Option<Self::Item> {;
-        info!("parsing...");
+    fn next(&mut self) -> Option<Self::Item> {
         if let Some(character) = self.chars.next() {
             trace!("manuscript: {:?}, character: {:?}", self, character);
             self.text_buffer.push(character);
@@ -92,6 +91,7 @@ impl<'a> Iterator for ManuscriptParser<'a> {
                         let scene_body = buffer.strip_suffix("```\n").unwrap().to_string();
                         let section_parser = SectionParser::new(scene_body.as_str());
                         let body: Vec<Line> = section_parser.collect::<Vec<Line>>();
+                        info!("scene body: {:?}", body);
                         self.text_buffer.clear();
                         if let Some(Section::Scene(mut document, _)) = self.scene.clone() {
                             document.tags = self.tags_buffer.clone();
