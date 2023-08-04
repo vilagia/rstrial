@@ -1,0 +1,3 @@
+# rstrial: a command line toolkit for novel writers
+
+To be wrote...
