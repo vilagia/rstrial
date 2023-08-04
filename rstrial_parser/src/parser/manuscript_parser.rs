@@ -42,7 +42,6 @@ impl<'a> Iterator for ManuscriptParser<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let token = if let Some(line) = self.lines.next() {
-            println!("state: {:?}", self.state);
             trace!("manuscript: {:?}, character: {:?}", self, line);
             match &self.state {
                 State::Line => match line {
@@ -85,7 +84,6 @@ impl<'a> Iterator for ManuscriptParser<'a> {
                         }
                     }
                     _ => {
-                        println!("line: {:?}", line);
                         self.text_buffer.push(line.to_string());
                         self.next()
                     }
