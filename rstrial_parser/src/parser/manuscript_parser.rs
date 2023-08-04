@@ -1,4 +1,5 @@
 use std::str::Chars;
+use log::{info, trace, warn};
 
 use crate::tokens::{
     section::{Document, Section},
@@ -7,6 +8,7 @@ use crate::tokens::{
 
 use super::section_parser::SectionParser;
 
+#[derive(Debug)]
 pub struct ManuscriptParser<'a> {
     pub source: Box<String>,
     scene: Option<Section>,
@@ -38,14 +40,17 @@ impl<'a> ManuscriptParser<'a> {
 impl<'a> Iterator for ManuscriptParser<'a> {
     type Item = Section;
 
-    fn next(&mut self) -> Option<Self::Item> {
+    fn next(&mut self) -> Option<Self::Item> {;
+        info!("parsing...");
         if let Some(character) = self.chars.next() {
+            trace!("manuscript: {:?}, character: {:?}", self, character);
             self.text_buffer.push(character);
             match self.state {
                 State::Line => match &self.text_buffer {
                     buffer if buffer.starts_with('#') && buffer.ends_with('\n') => {
                         let title = buffer.strip_prefix("# ").unwrap().trim().to_string();
                         self.text_buffer.clear();
+                        info!("title: {}", title);
                         Some(Section::Title(title))
                     }
                     buffer if buffer.starts_with("```") && buffer.ends_with('\n') => {
@@ -56,6 +61,7 @@ impl<'a> Iterator for ManuscriptParser<'a> {
                             .strip_suffix('\n')
                             .unwrap()
                             .to_string();
+                        info!("scene title: {}", scene_title);
                         self.scene = Some(Section::Scene(
                             Document::new(scene_title, None, vec![]),
                             vec![],
@@ -69,6 +75,7 @@ impl<'a> Iterator for ManuscriptParser<'a> {
                             .split('/')
                             .map(|tag| tag.to_string())
                             .collect::<Vec<String>>();
+                        info!("tags: {:?}", tags);
                         self.tags_buffer.append(&mut tags);
                         self.text_buffer.clear();
                         self.next()
@@ -98,6 +105,7 @@ impl<'a> Iterator for ManuscriptParser<'a> {
                 },
             }
         } else {
+            info!("parsiing finished.");
             None
         }
     }
