@@ -1,3 +1,5 @@
+use log::{info, warn};
+use progress;
 use std::fs;
 
 use clap::{Parser, Subcommand, ValueEnum};
@@ -66,11 +68,14 @@ fn main() {
     pretty_env_logger::init();
     let args = Args::parse();
 
+    info!("{:?}", args);
     match args.command {
         Commands::Convert(args) => {
+            warn!("start converting...");
             let manuscripts: Vec<String> = extract_manuscripts(&args);
             let manuscripts = convert_manuscripts(&args, manuscripts);
             output(&args, manuscripts);
+            warn!("finished converting!");
         }
     }
 }
@@ -99,9 +104,13 @@ fn extract_manuscripts(args: &ConvertArgs) -> Vec<String> {
 }
 
 fn convert_manuscripts(args: &ConvertArgs, manuscripts: Vec<String>) -> Vec<String> {
+    let mut bar = progress::Bar::new();
+    bar.set_job_title("Converting");
+    let bar_tick = 100 / manuscripts.len() as u64;
     manuscripts
         .iter()
         .map(|manuscript| {
+            bar.add_percent(bar_tick as i32);
             let parser = rstrial_parser::ManuscriptParser::new(manuscript);
             let tokens = parser.collect();
 

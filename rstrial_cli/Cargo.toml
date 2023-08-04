@@ -10,3 +10,5 @@ clap = { version = "4.3.19", features = ["derive", "unicode"] }
 rstrial_parser = { path = "../rstrial_parser" }
 rstrial_converter = { path = "../rstrial_converter" }
 pretty_env_logger = "0.5.0"
+log = "0.4.19"
+progress = "0.2.0"
