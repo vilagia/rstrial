@@ -1,3 +1,4 @@
+use log::info;
 use rstrial_parser::tokens::{section::Section, Line, LineItem};
 
 pub mod aozora;
@@ -82,6 +83,7 @@ pub trait ManuscriptConverter {
                         _ => format!("\n†\n\n{}", Self::ItemConverter::convert(section.clone())),
                     },
                 };
+                info!("convert: {:?} -> `{}`", section, section_string);
                 previous_section = Some(section);
                 section_string
             })
