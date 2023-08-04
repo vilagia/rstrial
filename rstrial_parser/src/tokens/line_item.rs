@@ -78,7 +78,6 @@ mod tests {
             let mut lexer = LineItem::lexer(input);
             let mut actual = vec![];
             while let Some(token) = lexer.next() {
-                println!("{:?} => {:?}", token, lexer.slice());
                 actual.push(token.unwrap());
             }
             assert_eq!(actual, expected);

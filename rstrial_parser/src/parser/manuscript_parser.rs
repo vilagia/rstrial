@@ -41,8 +41,6 @@ impl<'a> Iterator for ManuscriptParser<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(character) = self.chars.next() {
             self.text_buffer.push(character);
-            println!("{:?}: {:?}", self.state, self.text_buffer);
-            // println!("{:?}", self.text_buffer);
             match self.state {
                 State::Line => match &self.text_buffer {
                     buffer if buffer.starts_with('#') && buffer.ends_with('\n') => {
