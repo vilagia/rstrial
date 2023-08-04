@@ -108,7 +108,7 @@ impl<'a> Iterator for ManuscriptParser<'a> {
             info!("parsiing finished.");
             None
         };
-        trace!("parse: {:?}",token);
+        trace!("parse: {:?}", token);
         token
     }
 }
