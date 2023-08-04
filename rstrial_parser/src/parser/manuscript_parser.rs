@@ -27,7 +27,7 @@ impl<'a> ManuscriptParser<'a> {
         Self {
             source: Box::new(section.to_string()),
             state: State::Line,
-            chars: Box::new(section.clone().chars()),
+            chars: Box::new(section.chars()),
             text_buffer: "".to_string(),
             tags_buffer: vec![],
             scene: None,
