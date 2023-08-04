@@ -5,14 +5,14 @@ use logos::Logos;
 use crate::tokens::{Line, LineItem};
 
 pub struct SectionParser<'a> {
-    pub source: Box<String>,
+    pub source: String,
     lines: Box<Lines<'a>>,
 }
 
 impl<'a> SectionParser<'a> {
     pub fn new(section: &'a str) -> Self {
         Self {
-            source: Box::new(section.to_string()),
+            source: section.to_string(),
             lines: Box::new(section.lines()),
         }
     }
