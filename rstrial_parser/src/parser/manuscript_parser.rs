@@ -1,4 +1,4 @@
-use log::{info, trace, warn};
+use log::{info, trace};
 use std::str::Chars;
 
 use crate::tokens::{
@@ -41,7 +41,7 @@ impl<'a> Iterator for ManuscriptParser<'a> {
     type Item = Section;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(character) = self.chars.next() {
+        let token = if let Some(character) = self.chars.next() {
             trace!("manuscript: {:?}, character: {:?}", self, character);
             self.text_buffer.push(character);
             match self.state {
@@ -107,7 +107,9 @@ impl<'a> Iterator for ManuscriptParser<'a> {
         } else {
             info!("parsiing finished.");
             None
-        }
+        };
+        trace!("parse: {:?}",token);
+        token
     }
 }
 
