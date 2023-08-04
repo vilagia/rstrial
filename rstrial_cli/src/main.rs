@@ -1,16 +1,16 @@
 use std::fs;
 
-use clap::{Parser, ValueEnum, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use rstrial_converter::converter::{
     aozora::manuscript_converter::AozoraManuscriptConverter,
-    vfm::manuscript_converter::VfmManuscriptConverter, ManuscriptConverter, SectionConverter,
+    vfm::manuscript_converter::VfmManuscriptConverter, ManuscriptConverter,
 };
 
 /// サブコマンドの定義
 
 #[derive(Debug, Subcommand)]
 enum Commands {
- Convert(ConvertArgs),
+    Convert(ConvertArgs),
 }
 
 #[derive(Debug, clap::Args)]
@@ -39,7 +39,6 @@ struct ConvertArgs {
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-
     #[clap(subcommand)]
     command: Commands,
 }
@@ -70,8 +69,8 @@ fn main() {
         Commands::Convert(args) => {
             let manuscripts: Vec<String> = extract_manuscripts(&args);
             let manuscripts = convert_manuscripts(&args, manuscripts);
-            output(&args, manuscripts);       
-        },
+            output(&args, manuscripts);
+        }
     }
 }
 
