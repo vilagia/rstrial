@@ -20,6 +20,14 @@ struct ConvertArgs {
     /// Target file path
     target: std::path::PathBuf,
 
+    /// Input format
+    /// txt: Plain text
+    /// md: Markdown
+    /// adoc: AsciiDoc
+    /// default: txt
+    #[arg(short, long)]
+    input: Option<Vec<String>>,
+
     /// Output format
     /// vfm: Vivliostyle Flavored Markdown
     /// aozora: Aozora Bunko format
@@ -85,10 +93,26 @@ fn extract_manuscripts(args: &ConvertArgs) -> Vec<String> {
         true => {
             let mut manuscripts = vec![];
             for entry in
-                fs::read_dir(args.target.clone()).expect("Should have been able to read the dir")
+                walkdir::WalkDir::new(args.target.clone()).into_iter()
             {
+                println!("entry: {:?}", entry);
                 let entry = entry.expect("Should have been able to read the entry");
+                if entry.file_type().is_dir() || entry.file_type().is_symlink(){
+                    continue;
+                }
                 let path = entry.path();
+                let target_ext = args
+                    .input
+                    .clone()
+                    .unwrap_or(vec!["txt".to_string()])
+                    .iter()
+                    .map(|ext| ext.to_string())
+                    .collect::<Vec<String>>();
+                let ext = path.extension().expect("Should have been able to read the file");
+                if !target_ext.contains(&ext.to_str().unwrap().to_string()) {
+                    continue;
+                }
+
                 let content =
                     fs::read_to_string(path).expect("Should have been able to read the file");
                 manuscripts.push(content);
