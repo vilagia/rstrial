@@ -1,5 +1,6 @@
 use std::{fs, path::Path};
 
+use clap::ValueEnum;
 use common_path::common_path;
 use log::{info, warn};
 use rstrial_converter::converter::{
@@ -7,7 +8,7 @@ use rstrial_converter::converter::{
     vfm::manuscript_converter::VfmManuscriptConverter, ManuscriptConverter,
 };
 
-use crate::{OutputFormat, PathManuscriptTuple};
+use crate::PathManuscriptTuple;
 
 use super::Command;
 
@@ -34,6 +35,25 @@ pub struct ConvertArgs {
     /// If not specified, output to stdout
     #[arg(short, long)]
     output: Option<std::path::PathBuf>,
+}
+
+#[derive(Debug, Clone)]
+enum OutputFormat {
+    Vfm,
+    Aozora,
+}
+
+impl ValueEnum for OutputFormat {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[OutputFormat::Vfm, OutputFormat::Aozora]
+    }
+
+    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+        match self {
+            OutputFormat::Vfm => Some(clap::builder::PossibleValue::new("vfm")),
+            OutputFormat::Aozora => Some(clap::builder::PossibleValue::new("aozora")),
+        }
+    }
 }
 
 pub struct ConvertCommand;
