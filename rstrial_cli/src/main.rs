@@ -1,28 +1,12 @@
 pub mod commands;
 
-use commands::convert::ConvertArgs;
-
 use log::{info, warn};
 
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{Parser, ValueEnum};
 
-use crate::commands::{convert::ConvertCommand, Command};
+use crate::commands::{convert::ConvertCommand, Args, Command, Commands};
 
 type PathManuscriptTuple = (String, String);
-
-/// サブコマンドの定義
-
-#[derive(Debug, Subcommand)]
-enum Commands {
-    Convert(ConvertArgs),
-}
-
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
-    #[clap(subcommand)]
-    command: Commands,
-}
 
 #[derive(Debug, Clone)]
 enum OutputFormat {
