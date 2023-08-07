@@ -1,10 +1,13 @@
 use std::{fs, path::Path};
 
-use log::{warn, info};
-use rstrial_converter::converter::{vfm::manuscript_converter::VfmManuscriptConverter, aozora::manuscript_converter::AozoraManuscriptConverter, ManuscriptConverter};
 use common_path::common_path;
+use log::{info, warn};
+use rstrial_converter::converter::{
+    aozora::manuscript_converter::AozoraManuscriptConverter,
+    vfm::manuscript_converter::VfmManuscriptConverter, ManuscriptConverter,
+};
 
-use crate::{PathManuscriptTuple, OutputFormat};
+use crate::{OutputFormat, PathManuscriptTuple};
 
 use super::Command;
 
@@ -57,7 +60,7 @@ impl ConvertCommand {
                             if entry.file_type().is_dir() || entry.file_type().is_symlink() {
                                 continue;
                             }
-    
+
                             let path = entry.path();
                             let target_ext = args
                                 .ext
@@ -72,7 +75,7 @@ impl ConvertCommand {
                             if !target_ext.contains(&ext.to_str().unwrap().to_string()) {
                                 continue;
                             }
-    
+
                             let content = fs::read_to_string(path)
                                 .expect("Should have been able to read the file");
                             manuscripts.push((path.to_string_lossy().to_string(), content));
@@ -93,7 +96,7 @@ impl ConvertCommand {
             }
         }
     }
-    
+
     fn convert_manuscripts(
         args: &ConvertArgs,
         manuscripts: Vec<PathManuscriptTuple>,
@@ -108,7 +111,7 @@ impl ConvertCommand {
                 bar.add_percent(bar_tick as i32);
                 let parser = rstrial_parser::ManuscriptParser::new(text);
                 let tokens = parser.collect();
-    
+
                 let path = path.to_string_lossy().to_string();
                 match args.format {
                     OutputFormat::Vfm => (path, VfmManuscriptConverter::convert(tokens)),
@@ -117,7 +120,7 @@ impl ConvertCommand {
             })
             .collect::<Vec<PathManuscriptTuple>>()
     }
-    
+
     fn output(args: &ConvertArgs, manuscripts: Vec<PathManuscriptTuple>) {
         match &args.output {
             Some(path) => match path.is_dir() {
@@ -125,8 +128,8 @@ impl ConvertCommand {
                     for (p, text) in manuscripts.iter() {
                         let output_path = path.canonicalize().unwrap();
                         let ext_path = Path::new(p).canonicalize().unwrap();
-                        let common_prefix =
-                            common_path(&output_path, &ext_path).expect("Unable to get common path");
+                        let common_prefix = common_path(&output_path, &ext_path)
+                            .expect("Unable to get common path");
                         let relative_path = ext_path
                             .strip_prefix(common_prefix.to_str().unwrap())
                             .expect("Unable to get relative path");
@@ -155,5 +158,5 @@ impl ConvertCommand {
                 }
             }
         }
-    }    
+    }
 }
