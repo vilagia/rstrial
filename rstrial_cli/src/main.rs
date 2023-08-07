@@ -23,13 +23,13 @@ struct ConvertArgs {
     /// Target file path
     target: std::path::PathBuf,
 
-    /// Input format
+    /// target file extentions
     /// txt: Plain text
     /// md: Markdown
     /// adoc: AsciiDoc
     /// default: txt
     #[arg(short, long)]
-    input: Option<Vec<String>>,
+    ext: Option<Vec<String>>,
 
     /// Output format
     /// vfm: Vivliostyle Flavored Markdown
@@ -100,7 +100,7 @@ fn extract_manuscripts<'a>(args: &'a ConvertArgs) -> Vec<PathManuscriptTuple> {
 
                         let path = entry.path();
                         let target_ext = args
-                            .input
+                            .ext
                             .clone()
                             .unwrap_or(vec!["txt".to_string()])
                             .iter()
@@ -164,14 +164,14 @@ fn output(args: &ConvertArgs, manuscripts: Vec<PathManuscriptTuple>) {
             true => {
                 for (p, text) in manuscripts.iter() {
                     let output_path = path.canonicalize().unwrap();
-                    let input_path = Path::new(p).canonicalize().unwrap();
-                    let common_prefix = common_path(&output_path, &input_path).expect("Unable to get common path");
-                    let relative_path = input_path
+                    let ext_path = Path::new(p).canonicalize().unwrap();
+                    let common_prefix = common_path(&output_path, &ext_path).expect("Unable to get common path");
+                    let relative_path = ext_path
                         .strip_prefix(common_prefix.to_str().unwrap())
                         .expect("Unable to get relative path");
                     let target_path = output_path.join(relative_path);
                     let target_dir_path = target_path.parent().unwrap();
-                    info!("Saving: {} -> {}", input_path.display(), target_path.display());
+                    info!("Saving: {} -> {}", ext_path.display(), target_path.display());
                     fs::create_dir_all(target_dir_path).expect("Unable to create directory");
                     fs::write(target_path, text).expect("Unable to write file");
                 }
