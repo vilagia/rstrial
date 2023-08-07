@@ -89,9 +89,7 @@ fn extract_manuscripts<'a>(args: &'a ConvertArgs) -> Vec<PathManuscriptTuple> {
     match args.target.is_dir() {
         true => {
             let mut manuscripts = vec![];
-            for entry in walkdir::WalkDir::new(args.target.clone())
-                .into_iter()
-            {
+            for entry in walkdir::WalkDir::new(args.target.clone()).into_iter() {
                 match entry {
                     Ok(entry) => {
                         if entry.file_type().is_dir() || entry.file_type().is_symlink() {
@@ -165,13 +163,18 @@ fn output(args: &ConvertArgs, manuscripts: Vec<PathManuscriptTuple>) {
                 for (p, text) in manuscripts.iter() {
                     let output_path = path.canonicalize().unwrap();
                     let ext_path = Path::new(p).canonicalize().unwrap();
-                    let common_prefix = common_path(&output_path, &ext_path).expect("Unable to get common path");
+                    let common_prefix =
+                        common_path(&output_path, &ext_path).expect("Unable to get common path");
                     let relative_path = ext_path
                         .strip_prefix(common_prefix.to_str().unwrap())
                         .expect("Unable to get relative path");
                     let target_path = output_path.join(relative_path);
                     let target_dir_path = target_path.parent().unwrap();
-                    info!("Saving: {} -> {}", ext_path.display(), target_path.display());
+                    info!(
+                        "Saving: {} -> {}",
+                        ext_path.display(),
+                        target_path.display()
+                    );
                     fs::create_dir_all(target_dir_path).expect("Unable to create directory");
                     fs::write(target_path, text).expect("Unable to write file");
                 }
