@@ -85,7 +85,7 @@ fn main() {
     }
 }
 
-fn extract_manuscripts<'a>(args: &'a ConvertArgs) -> Vec<PathManuscriptTuple> {
+fn extract_manuscripts(args: &ConvertArgs) -> Vec<PathManuscriptTuple> {
     match args.target.is_dir() {
         true => {
             let mut manuscripts = vec![];
@@ -144,7 +144,7 @@ fn convert_manuscripts(
         .map(|(path, text)| {
             let path = Path::new(path);
             bar.add_percent(bar_tick as i32);
-            let parser = rstrial_parser::ManuscriptParser::new(&text);
+            let parser = rstrial_parser::ManuscriptParser::new(text);
             let tokens = parser.collect();
 
             let path = path.to_string_lossy().to_string();
