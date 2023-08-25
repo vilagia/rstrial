@@ -4,7 +4,7 @@ use log::{info, warn};
 
 use clap::Parser;
 
-use crate::commands::{convert::ConvertCommand, Args, Command, Commands};
+use crate::commands::{check::CheckCommand, convert::ConvertCommand, Args, Command, Commands};
 
 type PathManuscriptTuple = (String, String);
 
@@ -18,6 +18,11 @@ fn main() {
             warn!("start converting...");
             ConvertCommand.execute(&args).unwrap();
             warn!("finished converting!");
+        }
+        Commands::Check(args) => {
+            warn!("start checking...");
+            CheckCommand.execute(&args).unwrap();
+            warn!("finished checking!");
         }
     }
 }

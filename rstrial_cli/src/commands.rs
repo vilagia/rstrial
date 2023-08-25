@@ -1,7 +1,8 @@
 use clap::{Parser, Subcommand};
 
-use self::convert::ConvertArgs;
+use self::{check::CheckArgs, convert::ConvertArgs};
 
+pub mod check;
 pub mod convert;
 
 #[derive(Parser, Debug)]
@@ -15,6 +16,7 @@ pub struct Args {
 #[derive(Debug, Subcommand)]
 pub enum Commands {
     Convert(ConvertArgs),
+    Check(CheckArgs),
 }
 
 pub trait Command {
