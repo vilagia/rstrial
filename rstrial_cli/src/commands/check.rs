@@ -1,13 +1,12 @@
-use std::{path::Path, vec};
+use std::{path::Path, thread};
 
+use llm_chain::{executor, parameters, prompt};
 use rstrial_converter::converter::{vfm::line_converter::VfmLineConverter, LineConverter};
 use rstrial_parser::{
-    tokens::{
-        section::{Manuscript, Section},
-        LineItem,
-    },
+    tokens::section::Section,
     ManuscriptParser,
 };
+use tokio::{task::block_in_place, runtime::Runtime};
 
 use super::Command;
 
@@ -37,9 +36,27 @@ impl Command for CheckCommand {
                 }
             })
             .collect();
+
+
+            let rt: Runtime  = Runtime::new().unwrap();
+    
         for (tags, body) in sections {
-            println!("tags: {:?}", tags);
-            println!("body: {}", body);
+
+            let handle = rt.spawn(async move {
+                let exec = executor!()?;
+                let t: String = tags.clone().join(", ");
+                println!("{body}");
+                let res = prompt!(
+                    "あなたは自動化された小説制作支援システムです。以下の文章に付されたタグが適切なものであるかどうかについて、理由とともに述べてください。",
+                    format!("tags: {t}\n\n{body}\n\n").as_str(),
+                )
+                .run(&parameters!(), &exec).await.unwrap();
+                println!("{}", res);
+                Ok::<(),llm_chain::traits::ExecutorCreationError>(()) // <- note the explicit type annotation here
+            });
+            while !handle.is_finished() {
+                thread::sleep(std::time::Duration::from_millis(100));
+            }
         }
         Ok(())
     }
