@@ -2,11 +2,8 @@ use std::{path::Path, thread};
 
 use llm_chain::{executor, parameters, prompt};
 use rstrial_converter::converter::{vfm::line_converter::VfmLineConverter, LineConverter};
-use rstrial_parser::{
-    tokens::section::Section,
-    ManuscriptParser,
-};
-use tokio::{task::block_in_place, runtime::Runtime};
+use rstrial_parser::{tokens::section::Section, ManuscriptParser};
+use tokio::runtime::Runtime;
 
 use super::Command;
 
@@ -37,11 +34,9 @@ impl Command for CheckCommand {
             })
             .collect();
 
+        let rt: Runtime = Runtime::new().unwrap();
 
-            let rt: Runtime  = Runtime::new().unwrap();
-    
         for (tags, body) in sections {
-
             let handle = rt.spawn(async move {
                 let exec = executor!()?;
                 let t: String = tags.clone().join(", ");
