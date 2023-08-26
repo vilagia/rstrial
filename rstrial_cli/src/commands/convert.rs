@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::{fs, path::Path, fmt::{Display, Formatter}};
 
 use clap::ValueEnum;
 use common_path::common_path;
@@ -18,12 +18,10 @@ pub struct ConvertArgs {
     target: std::path::PathBuf,
 
     /// target file extentions
-    /// txt: Plain text
-    /// md: Markdown
-    /// adoc: AsciiDoc
+    /// 
     /// default: txt
     #[arg(short, long)]
-    ext: Option<Vec<String>>,
+    ext: Option<Vec<AvailableExt>>,
 
     /// Output format
     /// vfm: Vivliostyle Flavored Markdown
@@ -43,6 +41,13 @@ enum OutputFormat {
     Aozora,
 }
 
+#[derive(Debug, Clone)]
+enum AvailableExt {
+    Txt,
+    Md,
+    Adoc,
+}
+
 impl ValueEnum for OutputFormat {
     fn value_variants<'a>() -> &'a [Self] {
         &[OutputFormat::Vfm, OutputFormat::Aozora]
@@ -52,6 +57,31 @@ impl ValueEnum for OutputFormat {
         match self {
             OutputFormat::Vfm => Some(clap::builder::PossibleValue::new("vfm")),
             OutputFormat::Aozora => Some(clap::builder::PossibleValue::new("aozora")),
+        }
+    }
+}
+
+
+impl ValueEnum for AvailableExt {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[AvailableExt::Txt, AvailableExt::Md, AvailableExt::Adoc]
+    }
+
+    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+        match self {
+            AvailableExt::Txt => Some(clap::builder::PossibleValue::new("txt")),
+            AvailableExt::Md => Some(clap::builder::PossibleValue::new("md")),
+            AvailableExt::Adoc => Some(clap::builder::PossibleValue::new("adoc")),
+        }
+    }
+}
+
+impl Display for AvailableExt {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AvailableExt::Txt => write!(f, "txt"),
+            AvailableExt::Md => write!(f, "md"),
+            AvailableExt::Adoc => write!(f, "adoc"),
         }
     }
 }
@@ -85,7 +115,7 @@ impl ConvertCommand {
                             let target_ext = args
                                 .ext
                                 .clone()
-                                .unwrap_or(vec!["txt".to_string()])
+                                .unwrap_or(vec![AvailableExt::Txt])
                                 .iter()
                                 .map(|ext| ext.to_string())
                                 .collect::<Vec<String>>();

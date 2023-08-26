@@ -12,10 +12,12 @@ pub struct Args {
     pub command: Commands,
 }
 
-/// サブコマンドの定義
+/// Subcommands
 #[derive(Debug, Subcommand)]
 pub enum Commands {
+    /// Convert manuscript into publishing formats
     Convert(ConvertArgs),
+    /// Check the manuscript and give advice
     Check(CheckArgs),
 }
 

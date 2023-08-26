@@ -13,7 +13,8 @@ pub struct CheckArgs {
     target: std::path::PathBuf,
 
     /// If true, use LLM for manuscript checking
-    #[arg(short, long)]
+    /// Currentry not implemented
+    #[arg(long)]
     use_llm: bool,
 }
 
