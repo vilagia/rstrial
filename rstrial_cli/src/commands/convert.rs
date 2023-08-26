@@ -1,4 +1,8 @@
-use std::{fs, path::Path, fmt::{Display, Formatter}};
+use std::{
+    fmt::{Display, Formatter},
+    fs,
+    path::Path,
+};
 
 use clap::ValueEnum;
 use common_path::common_path;
@@ -18,7 +22,7 @@ pub struct ConvertArgs {
     target: std::path::PathBuf,
 
     /// target file extentions
-    /// 
+    ///
     /// default: txt
     #[arg(short, long)]
     ext: Option<Vec<AvailableExt>>,
@@ -60,7 +64,6 @@ impl ValueEnum for OutputFormat {
         }
     }
 }
-
 
 impl ValueEnum for AvailableExt {
     fn value_variants<'a>() -> &'a [Self] {
