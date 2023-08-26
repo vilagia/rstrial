@@ -46,9 +46,12 @@ impl Command for CheckCommand {
                 println!("{body}");
                 let res = prompt!(
                     "あなたは自動化された小説制作支援システムです。以下の文章は小説の一シーンです。以下の書式に沿って著者への助言を行ってください。\n\n - 各タグの妥当性と、評価の理由 \n - 追加タグ案 \n - タグへの適合性を向上させる施策",
-                    format!("tags: {t}\n\n{body}\n\n").as_str(),
+                    "tags:{{tags}}\n\n{{body}}\n\n",
                 )
-                .run(&parameters!(), &exec).await.unwrap();
+                .run(&parameters!(
+                    "tags" => t,
+                    "body" => body,
+                ), &exec).await.unwrap();
                 println!("{}", res);
                 Ok::<(),llm_chain::traits::ExecutorCreationError>(()) // <- note the explicit type annotation here
             });
