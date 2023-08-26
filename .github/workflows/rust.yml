@@ -26,5 +26,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: rustfmt
-      uses: actions-rust-lang/rustfmt@v1
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+    - uses: actions-rs/cargo@v1
+      with:
+        toolchain: nightly
+        command: clippy
+        args: --verbose
