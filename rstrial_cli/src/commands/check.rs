@@ -38,6 +38,8 @@ impl Command for CheckCommand {
         let rt: Runtime = Runtime::new().unwrap();
 
         for (tags, body) in sections {
+            let mut spinning_circle = progress::SpinningCircle::new();
+            spinning_circle.set_job_title("Waiting for LLM to finish");
             let handle = rt.spawn(async move {
                 let exec = executor!()?;
                 let t: String = tags.clone().join(", ");
@@ -52,7 +54,9 @@ impl Command for CheckCommand {
             });
             while !handle.is_finished() {
                 thread::sleep(std::time::Duration::from_millis(100));
+                spinning_circle.tick();
             }
+            spinning_circle.jobs_done();
         }
         Ok(())
     }
