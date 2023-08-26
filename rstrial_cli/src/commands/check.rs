@@ -44,8 +44,15 @@ impl Command for CheckCommand {
                 let exec = executor!()?;
                 let t: String = tags.clone().join(", ");
                 println!("{body}");
+                let temprate = r#"
+                あなたは自動化された小説制作支援システムです。以下の文章は小説の一シーンです。以下の書式に沿って著者への助言を行ってください。
+                
+                - 各タグの妥当性と、評価の理由
+                - 追加タグ案
+                - タグへの適合性を向上させる施策
+                "#;
                 let res = prompt!(
-                    "あなたは自動化された小説制作支援システムです。以下の文章は小説の一シーンです。以下の書式に沿って著者への助言を行ってください。\n\n - 各タグの妥当性と、評価の理由 \n - 追加タグ案 \n - タグへの適合性を向上させる施策",
+                    temprate,
                     "tags:{{tags}}\n\n{{body}}\n\n",
                 )
                 .run(&parameters!(
