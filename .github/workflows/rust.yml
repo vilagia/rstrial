@@ -14,18 +14,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+    - uses: actions-rs/cargo@v1
+      with:
+        toolchain: nightly
+        command: test
+        args: --verbose
   formatting:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: clippy
-      uses: actions-rs/clippy-check@v1.0.7
+    - uses: actions-rs/toolchain@v1
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        args: --all-features
-    - name: rustfmt
-      uses: actions-rust-lang/rustfmt@v1
+        toolchain: nightly
+        components: rustfmt, clippy
+    - uses: actions-rs/cargo@v1
+      with:
+        toolchain: nightly
+        command: clippy
+        args: --verbose

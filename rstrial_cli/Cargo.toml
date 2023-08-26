@@ -1,7 +1,13 @@
+cargo-features = ["different-binary-name"]
+
 [package]
 name = "rstrial_cli"
 version = "0.1.0"
 edition = "2021"
+
+[[bin]]
+name = "rstrial_cli"
+filename = "rstrial"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -9,3 +15,11 @@ edition = "2021"
 clap = { version = "4.3.19", features = ["derive", "unicode"] }
 rstrial_parser = { path = "../rstrial_parser" }
 rstrial_converter = { path = "../rstrial_converter" }
+pretty_env_logger = "0.5.0"
+log = "0.4.19"
+progress = "0.2.0"
+walkdir = "2.3.3"
+common-path = "1.0.0"
+llm-chain = "0.12.3"
+llm-chain-openai = "0.12.3"
+tokio = { version = "1.32.0", features = ["full"] }

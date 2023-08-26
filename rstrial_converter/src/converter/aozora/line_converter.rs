@@ -1,16 +1,13 @@
 use crate::converter::LineConverter;
 
-use super::line_item_converter::VfmLineItemConverter;
+use super::line_item_converter::AozoraLineItemConverter;
 
-pub struct VfmLineConverter;
+pub struct AozoraLineConverter;
 
-impl LineConverter for VfmLineConverter {
-    type ItemConverter = VfmLineItemConverter;
-
-    fn line_separator() -> String {
-        "\n\n".to_string()
-    }
+impl LineConverter for AozoraLineConverter {
+    type ItemConverter = AozoraLineItemConverter;
 }
+
 #[cfg(test)]
 mod tests {
     use rstrial_parser::tokens::{line_item::Terminator, Line};
@@ -30,8 +27,8 @@ mod tests {
             rstrial_parser::tokens::LineItem::Text("はまだ無い".to_string()),
             rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
         ]);
-        let result = VfmLineConverter::convert(line);
-        assert_eq!(result, "　我が輩は、{名前|なまえ}はまだ無い。\n\n");
+        let result = AozoraLineConverter::convert(line);
+        assert_eq!(result, "　我が輩は、|名前《なまえ》はまだ無い。\n");
     }
 
     #[test]
@@ -47,7 +44,7 @@ mod tests {
             rstrial_parser::tokens::LineItem::Text("はまだ無い".to_string()),
             rstrial_parser::tokens::LineItem::EndOfSentence(Terminator::Normal("」".to_string())),
         ]);
-        let result = VfmLineConverter::convert(line);
-        assert_eq!(result, " 「我が輩は、{名前|なまえ}はまだ無い」\n\n");
+        let result = AozoraLineConverter::convert(line);
+        assert_eq!(result, " 「我が輩は、|名前《なまえ》はまだ無い」\n");
     }
 }
