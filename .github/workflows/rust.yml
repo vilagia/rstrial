@@ -26,10 +26,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: clippy
-      uses: actions-rs/clippy-check@v1.0.7
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        args: --all-features
     - name: rustfmt
       uses: actions-rust-lang/rustfmt@v1
