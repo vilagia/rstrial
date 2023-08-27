@@ -11,8 +11,6 @@ use tokio_stream::StreamExt;
 
 use super::Command;
 
-static LLM_API_REQUEST_CHUNK_SIZE: usize = 10;
-
 #[derive(Debug, clap::Args)]
 pub struct CheckArgs {
     /// Target file path
@@ -42,23 +40,15 @@ impl Command for CheckCommand {
         let rt = tokio::runtime::Builder::new_multi_thread()
             .enable_all()
             .build()?;
-        let section_batches: Vec<_> = sections
-            .chunks(LLM_API_REQUEST_CHUNK_SIZE)
-            .enumerate()
-            .collect();
-        let batch_count = section_batches.len();
-        for (index, batch) in section_batches {
-            let mut spinning_circle = progress::SpinningCircle::new();
-            spinning_circle.set_job_title(
-                format!("Checking scenes batch {}/{}", index + 1, batch_count).as_str(),
-            );
-            let h = rt.spawn(Self::check_scenes(batch.to_vec()));
-            while !h.is_finished() {
-                thread::sleep(std::time::Duration::from_millis(100));
-                spinning_circle.tick();
-            }
-            spinning_circle.jobs_done();
+
+        let mut spinning_circle = progress::SpinningCircle::new();
+        spinning_circle.set_job_title("Waiting for LLM to finish");
+        let handle = rt.spawn(Self::check_scenes(sections));
+        while !handle.is_finished() {
+            thread::sleep(std::time::Duration::from_millis(100));
+            spinning_circle.tick();
         }
+        spinning_circle.jobs_done();
         Ok(())
     }
 }
