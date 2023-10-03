@@ -26,16 +26,16 @@ impl<'a> Iterator for SectionParser<'a> {
             let line_parser = LineItem::lexer(line_str);
             if line_str.starts_with("//") {
                 Some(Line::Comment(
-                    line_str.strip_prefix("//").unwrap().to_string(),
+                    line_str.strip_prefix("//").unwrap_or_else(|| panic!("parsing failed: {}", line_str)).to_string(),
                 ))
             } else if line_str.starts_with('「') {
                 let items: Vec<LineItem> = line_parser
-                    .map(|item| item.unwrap())
+                    .map(|item| item.unwrap_or_else(|_| panic!("parsing failed: {}", line_str)))
                     .collect::<Vec<LineItem>>();
                 Some(Line::Conversation(items))
             } else {
                 let items: Vec<LineItem> = line_parser
-                    .map(|item| item.unwrap())
+                    .map(|item| item.unwrap_or_else(|_| panic!("parsing failed: {}", line_str)))
                     .collect::<Vec<LineItem>>();
                 Some(Line::Paragraph(items))
             }

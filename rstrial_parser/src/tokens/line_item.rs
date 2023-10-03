@@ -12,13 +12,13 @@ pub enum LineItem {
     #[regex(r"[,、，]", LineItemParser::to_string)]
     Comma(String),
     // A comment that should be ignored.
-    #[regex(r"\{#\w+\}", LineItemParser::to_comment_string)]
+    #[regex(r"\{#[^}]+\}", LineItemParser::to_comment_string)]
     Comment(String),
     // Text to be rendered with additional styles.
-    #[regex(r"\{\w+\|[\w・]+}", LineItemParser::to_ruby)]
+    #[regex(r"\{[^}]+\|[^}]+}", LineItemParser::to_ruby)]
     TextWithRuby((String, String)),
     // Text to be rendered with additional styles.
-    #[regex(r"\{\w+\|\.}", LineItemParser::to_sesame)]
+    #[regex(r"\{[^}]+\|\.}", LineItemParser::to_sesame)]
     TextWithSesame((String, char)),
     // End of sentence. Includes a string shows the end of sentence(e.g. `.`, `。` or `！`).
     #[regex(r"[!?！？。」]+", callback = LineItemParser::to_terminator)]
@@ -52,12 +52,12 @@ mod tests {
     fn parse() {
         let cases = vec![
             (
-                "吾輩は{猫|ねこ}である{#犬のほうがいいかも}???!?!?!?!！？名前は{まだ|.}無い。どこで生まれたのかとんと見当がつかぬ。",
+                "吾輩は{猫|ねこ}である{#犬のほうが いいかも}???!?!?!?!！？名前は{まだ|.}無い。どこで生まれたのかとんと見当がつかぬ。",
                 vec![
                 LineItem::Text("吾輩は".to_string()),
                 LineItem::TextWithRuby(("猫".to_string(), "ねこ".to_string())),
                 LineItem::Text("である".to_string()),
-                LineItem::Comment("犬のほうがいいかも".to_string()),
+                LineItem::Comment("犬のほうが いいかも".to_string()),
                 LineItem::EndOfSentence(Terminator::Exclamation("???!?!?!?!！？".to_string())),
                 LineItem::Text("名前は".to_string()),
                 LineItem::TextWithSesame(("まだ".to_string(), '・')),
@@ -67,11 +67,17 @@ mod tests {
                 LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
             ]),
             (
+                "{吾輩は猫である|I am a cat}。",
+                vec![
+                LineItem::TextWithRuby(("吾輩は猫である".to_string(), "I am a cat".to_string())),
+                LineItem::EndOfSentence(Terminator::Normal("。".to_string())),
+            ]),
+            (
                 "「ああああ」",
                 vec![
                 LineItem::Text("「ああああ".to_string()),
                 LineItem::EndOfSentence(Terminator::Normal("」".to_string())),
-            ],
+                ],
             )
         ];
         for (input, expected) in cases {
